@@ -1,0 +1,94 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-upeu-primary text-white py-3">
+          <h5 class="mb-0 fw-bold">
+            <i class="bi" [ngClass]="isEditMode ? 'bi-pencil-square' : 'bi-person-plus'"></i>
+            {{ isEditMode ? 'Editar Residente' : 'Nuevo Residente' }}
+          </h5>
+        </div>
+
+        <div class="card-body p-4">
+          <form [formGroup]="form" (ngSubmit)="guardar()">
+            <div class="row g-3">
+              <!-- Nombres -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Nombres <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="nombres" placeholder="Ej. Juan Carlos"
+                       [ngClass]="{'is-invalid': form.get('nombres')?.touched && form.get('nombres')?.invalid}">
+                @if (form.get('nombres')?.touched && form.get('nombres')?.invalid) {
+                  <div class="invalid-feedback">El nombre es obligatorio.</div>
+                }
+              </div>
+
+              <!-- Apellido Paterno -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Apellido Paterno <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="apPaterno" placeholder="Ej. Pérez"
+                       [ngClass]="{'is-invalid': form.get('apPaterno')?.touched && form.get('apPaterno')?.invalid}">
+                @if (form.get('apPaterno')?.touched && form.get('apPaterno')?.invalid) {
+                  <div class="invalid-feedback">El apellido paterno es obligatorio.</div>
+                }
+              </div>
+
+              <!-- Apellido Materno -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Apellido Materno <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="apMaterno" placeholder="Ej. Gómez"
+                       [ngClass]="{'is-invalid': form.get('apMaterno')?.touched && form.get('apMaterno')?.invalid}">
+                @if (form.get('apMaterno')?.touched && form.get('apMaterno')?.invalid) {
+                  <div class="invalid-feedback">El apellido materno es obligatorio.</div>
+                }
+              </div>
+
+              <!-- DNI / Nro Documento -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">DNI / Nro Documento <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="nroDocumento" placeholder="8 dígitos" maxlength="8"
+                       [ngClass]="{'is-invalid': form.get('nroDocumento')?.touched && form.get('nroDocumento')?.invalid}">
+                @if (form.get('nroDocumento')?.touched && form.get('nroDocumento')?.invalid) {
+                  <div class="invalid-feedback">Debe contener 8 dígitos.</div>
+                }
+              </div>
+
+              <!-- Teléfono -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Teléfono / Celular</label>
+                <input type="text" class="form-control" formControlName="telefono" placeholder="Ej. 987654321" maxlength="9">
+              </div>
+
+              <!-- Email -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Correo Electrónico</label>
+                <input type="email" class="form-control" formControlName="email" placeholder="ejemplo@upeu.edu.pe"
+                       [ngClass]="{'is-invalid': form.get('email')?.touched && form.get('email')?.invalid}">
+                @if (form.get('email')?.touched && form.get('email')?.invalid) {
+                  <div class="invalid-feedback">Ingrese un correo válido.</div>
+                }
+              </div>
+
+              <!-- Fecha de Nacimiento -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Fecha de Nacimiento</label>
+                <input type="date" class="form-control" formControlName="fechaNac">
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <a routerLink="/clientes" class="btn btn-outline-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-upeu-primary" [disabled]="guardando">
+                @if (guardando) {
+                  <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                }
+                {{ isEditMode ? 'Guardar Cambios' : 'Registrar Residente' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,295 @@
+<div class="wrap py-4">
+  <!-- ENCABEZADO -->
+  <div class="head d-flex justify-content-between align-items-start flex-wrap gap-3">
+    <div>
+      <h1>Historial de Pagos</h1>
+      <p>Control de cuotas mensuales según la fecha de inicio del contrato de cada residente</p>
+    </div>
+    <a routerLink="/pagos/nuevo" class="btn btn-primary-custom shadow-sm">
+      <i class="bi bi-plus-circle me-1"></i>Registrar Pago
+    </a>
+  </div>
+
+  <!-- HERRAMIENTAS: SEGMENTOS Y BUSCADOR -->
+  <div class="tools">
+    <div class="seg" role="group" aria-label="Filtrar por estado">
+      <button type="button" (click)="setFiltro('todos')" [attr.aria-pressed]="filtroEstado === 'todos'">
+        Todos
+      </button>
+      <button type="button" (click)="setFiltro('ok')" [attr.aria-pressed]="filtroEstado === 'ok'">
+        Pagado
+      </button>
+      <button type="button" (click)="setFiltro('bad')" [attr.aria-pressed]="filtroEstado === 'bad'">
+        Pago pendiente
+      </button>
+    </div>
+
+    <div class="field">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <circle cx="7" cy="7" r="4.8"/>
+        <path d="m11 11 3 3"/>
+      </svg>
+      <input type="search" placeholder="Buscar por nombre o habitación" [(ngModel)]="busqueda" aria-label="Buscar">
+    </div>
+  </div>
+
+  <!-- SPINNER DE CARGA -->
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="text-muted mt-2">Cargando pagos y residentes...</p>
+    </div>
+  } @else {
+    <!-- TABLA PRINCIPAL DE RESIDENTES -->
+    <div class="card shadow-sm">
+      <div class="tablewrap">
+        <table class="main">
+          <thead>
+            <tr>
+              <th style="width: 56px">N°</th>
+              <th>Residente</th>
+              <th>Habitación</th>
+              <th>Estado</th>
+              <th class="num">Pagos</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (residentesFiltrados.length === 0) {
+              <tr>
+                <td colspan="5" class="empty">
+                  <i class="bi bi-search me-1"></i>No hay residentes que coincidan con la búsqueda o filtro.
+                </td>
+              </tr>
+            } @else {
+              @for (r of residentesFiltrados; track r.name; let i = $index) {
+                <tr>
+                  <td>{{ i + 1 }}</td>
+                  <td class="who">
+                    <strong>{{ r.name }}</strong>
+                  </td>
+                  <td>
+                    <span class="room">{{ r.room }}</span>
+                  </td>
+                  <td>
+                    <span class="pill" [ngClass]="r.tone">{{ r.label }}</span>
+                    <span class="sub" [ngClass]="r.tone">{{ r.sub }}</span>
+                  </td>
+                  <td class="num">
+                    <button class="btn sm" type="button" (click)="abrirPanel(r)">
+                      <i class="bi bi-wallet2 me-1"></i>Pagos
+                    </button>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- MODAL / PANEL DE PAGOS DEL RESIDENTE -->
+@if (modalVisible && residenteSeleccionado) {
+  <div class="overlay" (click)="cerrarPanel()">
+    <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <header>
+        <div>
+          <h2>{{ residenteSeleccionado.name }}</h2>
+          <div class="meta">
+            <span class="room">{{ residenteSeleccionado.room }}</span>
+            <span class="pill" [ngClass]="residenteSeleccionado.tone">{{ residenteSeleccionado.label }}</span>
+          </div>
+        </div>
+        <button class="x" type="button" (click)="cerrarPanel()" aria-label="Cerrar">×</button>
+      </header>
+
+      <!-- RESUMEN DEL CONTRATO -->
+      <div class="sec">
+        <div class="fig">
+          <div>
+            <div class="k">Total del contrato</div>
+            <div class="v">S/ {{ residenteSeleccionado.total | number:'1.2-2' }}</div>
+          </div>
+          <div>
+            <div class="k">Pagado</div>
+            <div class="v" [ngClass]="{'ok': residenteSeleccionado.paid > 0}">S/ {{ residenteSeleccionado.paid | number:'1.2-2' }}</div>
+          </div>
+          <div>
+            <div class="k">Falta</div>
+            <div class="v" [ngClass]="residenteSeleccionado.falta > 0 ? 'bad' : 'ok'">S/ {{ residenteSeleccionado.falta | number:'1.2-2' }}</div>
+          </div>
+        </div>
+        <div class="track" [ngClass]="residenteSeleccionado.tone">
+          <span [style.width.%]="residenteSeleccionado.pct"></span>
+        </div>
+        <p class="reason" [ngClass]="residenteSeleccionado.tone">{{ residenteSeleccionado.reason }}</p>
+      </div>
+
+      <!-- SECCIÓN DE CUOTAS / HISTORIAL DE PAGOS -->
+      <div class="sec">
+        <h3>Historial de pagos</h3>
+        <div class="cuotas-list">
+          @for (c of residenteSeleccionado.cuotas; track c.n) {
+            <article class="cuota">
+              <!-- CABECERA DE CUOTA -->
+              <div class="ch">
+                <div>
+                  <strong>{{ c.name }}</strong>
+                  <span class="sub" [ngClass]="c.ok ? '' : 'bad'">
+                    {{ formatearVencimiento(c.due, c.ok) }}
+                  </span>
+                </div>
+                <span class="pill" [ngClass]="c.tone">{{ c.label }}</span>
+              </div>
+
+              <!-- CIFRAS DE LA CUOTA -->
+              <div class="cfig">
+                <span>Monto <b>S/ {{ residenteSeleccionado.monthly | number:'1.2-2' }}</b></span>
+                <span>Pagado <b [ngClass]="{'ok': c.paid > 0}">S/ {{ c.paid | number:'1.2-2' }}</b></span>
+                <span>Falta <b [ngClass]="c.falta > 0 ? 'bad' : 'ok'">S/ {{ c.falta | number:'1.2-2' }}</b></span>
+              </div>
+
+              @if (!c.ok) {
+                <div class="cfig text-bad" style="border-top:0; padding-top:0;">
+                  <i class="bi bi-info-circle me-1"></i>{{ c.reason }}
+                </div>
+              }
+
+              <!-- TABLA DE ABONOS DEL MES -->
+              @if (c.abonos.length > 0) {
+                <div class="abonos tablewrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Método</th>
+                        <th class="num">Monto</th>
+                        <th>Voucher</th>
+                        <th class="num" style="width: 40px"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (p of c.abonos; track p.idPago) {
+                        <tr>
+                          <td>{{ formatearFecha(p.fecha) }}</td>
+                          <td>
+                            <span class="badge-method">{{ p.metodoPago }}</span>
+                          </td>
+                          <td class="num">
+                            <b>S/ {{ p.monto | number:'1.2-2' }}</b>
+                          </td>
+                          <td>
+                            @if (getVoucherUrl(p)) {
+                              <button class="thumb" type="button" (click)="verVoucher(p)">
+                                <img [src]="getVoucherUrl(p)" alt="Voucher">
+                                <span>Ver voucher</span>
+                              </button>
+                            } @else {
+                              <div class="d-flex align-items-center gap-2">
+                                <span class="chip-bad">Sin voucher</span>
+                                <label class="btn sm line cursor-pointer">
+                                  <i class="bi bi-upload me-1"></i>Subir
+                                  <input class="vh" type="file" accept="image/*,.pdf" (change)="onSubirVoucher($event, p)">
+                                </label>
+                              </div>
+                            }
+                          </td>
+                          <td class="num">
+                            <button class="btn-del" type="button" title="Eliminar este abono" (click)="eliminarPago(p.idPago)">
+                              <i class="bi bi-trash"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              } @else {
+                <div class="none">
+                  <i class="bi bi-calendar-x me-1 text-muted"></i>Todavía no hay pagos registrados para este mes.
+                </div>
+              }
+
+              <!-- PIE DE CUOTA / FORMULARIO AGREGAR PAGO -->
+              @if (c.falta > 0) {
+                <div class="cfoot">
+                  @if (addingCuota === c.n) {
+                    <form class="add" (submit)="$event.preventDefault(); guardarPago(c)">
+                      <div class="row3">
+                        <label for="fAmt">
+                          Monto (S/)
+                          <input id="fAmt" type="number" min="0.01" step="0.01" [(ngModel)]="formMonto" name="formMonto" (input)="onMontoInput()" placeholder="0.00">
+                        </label>
+                        <label for="fMet">
+                          Método
+                          <select id="fMet" [(ngModel)]="formMetodo" name="formMetodo">
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Plin">Plin</option>
+                            <option value="Yape">Yape</option>
+                            <option value="Transferencia">Transferencia</option>
+                          </select>
+                        </label>
+                        <label for="fDate">
+                          Fecha
+                          <input id="fDate" type="date" [(ngModel)]="formFecha" name="formFecha">
+                        </label>
+                      </div>
+
+                      <label for="fFile">
+                        Voucher (comprobante de pago opcional)
+                        <input id="fFile" type="file" accept="image/*,.pdf" (change)="onFileSelected($event)">
+                      </label>
+
+                      <div class="hint" [ngClass]="{'err': formHintError}">
+                        <i class="bi me-1" [ngClass]="formHintError ? 'bi-exclamation-triangle-fill' : 'bi-info-circle-fill'"></i>
+                        {{ formHint }}
+                      </div>
+
+                      <div class="actions">
+                        <button class="btn" type="submit" [disabled]="guardandoPago || formHintError || !formMonto">
+                          @if (guardandoPago) {
+                            <span class="spinner-border spinner-border-sm me-1"></span>Guardando...
+                          } @else {
+                            <i class="bi bi-check-lg me-1"></i>Guardar pago
+                          }
+                        </button>
+                        <button class="btn line" type="button" (click)="completarMonto(c.falta)">
+                          Completar monto (S/ {{ c.falta | number:'1.2-2' }})
+                        </button>
+                        <button class="btn line" type="button" (click)="cancelarAgregar()">
+                          Cancelar
+                        </button>
+                      </div>
+                    </form>
+                  } @else {
+                    <button class="btn sm" type="button" (click)="iniciarAgregarPago(c)">
+                      <i class="bi bi-plus-lg me-1"></i>+ Agregar pago de {{ c.name }}
+                    </button>
+                  }
+                </div>
+              } @else if (!c.ok) {
+                <div class="cfoot done-msg text-warning">
+                  <i class="bi bi-exclamation-circle me-1"></i>Monto completo. Sube el voucher pendiente para pasar a Pagado.
+                </div>
+              }
+            </article>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- LIGHTBOX MODAL PARA VER VOUCHER EN TAMAÑO COMPLETO -->
+@if (lightboxVisible) {
+  <div class="light" (click)="cerrarLightbox()">
+    <figure (click)="$event.stopPropagation()">
+      <img [src]="lightboxUrl" alt="Voucher en tamaño completo">
+      <figcaption>{{ lightboxCaption }}</figcaption>
+      <button class="btn line" type="button" style="background:#fff; color:#003a70;" (click)="cerrarLightbox()">
+        <i class="bi bi-x-lg me-1"></i>Cerrar
+      </button>
+    </figure>
+  </div>
+}

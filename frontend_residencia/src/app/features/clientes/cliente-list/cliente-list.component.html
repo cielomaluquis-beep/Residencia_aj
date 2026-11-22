@@ -1,0 +1,111 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-0 text-upeu-primary d-flex align-items-center">
+        <i class="bi bi-people me-2"></i>Residentes y Personas
+        <span class="badge bg-success-subtle text-success border border-success fs-6 fw-semibold ms-3 px-3 py-1">
+          <i class="bi bi-person-check-fill me-1"></i>{{ contarActivos() }} Activos
+        </span>
+      </h3>
+      <p class="text-muted small mb-0">Gestión de usuarios residentes de la residencia</p>
+    </div>
+    <a routerLink="/clientes/nuevo" class="btn btn-upeu-primary shadow-sm">
+      <i class="bi bi-person-plus me-1"></i>Nuevo Residente
+    </a>
+  </div>
+
+  @if (filtroTexto) {
+    <div class="alert alert-info py-2 px-3 d-flex justify-content-between align-items-center mb-3">
+      <span>
+        <i class="bi bi-funnel me-1"></i> Filtrando por: <strong>"{{ filtroTexto }}"</strong>
+        ({{ personasFiltradas.length }} resultados)
+      </span>
+      <button class="btn btn-sm btn-outline-secondary" (click)="limpiarFiltro()">
+        <i class="bi bi-x-circle me-1"></i>Mostrar todos
+      </button>
+    </div>
+  }
+
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="text-muted mt-2">Cargando residentes...</p>
+    </div>
+  } @else if (personas.length === 0) {
+    <div class="card p-5 text-center border-0 shadow-sm">
+      <i class="bi bi-people text-muted fs-1 mb-2"></i>
+      <h5>No hay residentes registrados</h5>
+      <p class="text-muted">Agrega al primer residente para asociarlo a habitaciones y contratos.</p>
+      <div>
+        <a routerLink="/clientes/nuevo" class="btn btn-upeu-primary">Crear Residente</a>
+      </div>
+    </div>
+  } @else if (personasFiltradas.length === 0) {
+    <div class="card p-5 text-center border-0 shadow-sm">
+      <i class="bi bi-search text-muted fs-1 mb-2"></i>
+      <h5>No se encontraron resultados</h5>
+      <p class="text-muted">No hay personas que coincidan con "{{ filtroTexto }}".</p>
+      <div>
+        <button class="btn btn-outline-secondary" (click)="limpiarFiltro()">Limpiar Búsqueda</button>
+      </div>
+    </div>
+  } @else {
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="ps-4">N°</th>
+              <th scope="col">Nombres y Apellidos</th>
+              <th scope="col">DNI / Documento</th>
+              <th scope="col">Teléfono</th>
+              <th scope="col">Email</th>
+              <th scope="col">F. Nacimiento</th>
+              <th scope="col" class="text-center">Estado</th>
+              <th scope="col" class="text-end pe-4">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of personasFiltradas; track p.idPersona; let i = $index) {
+              <tr>
+                <td class="ps-4 fw-bold text-muted">{{ i + 1 }}</td>
+                <td>
+                  <div class="fw-bold text-primary">{{ p.nombres }} {{ p.apPaterno }} {{ p.apMaterno }}</div>
+                </td>
+                <td>
+                  <span class="badge bg-light text-dark border">
+                    <i class="bi bi-card-text me-1"></i>{{ p.nroDocumento }}
+                  </span>
+                </td>
+                <td>{{ p.telefono || '—' }}</td>
+                <td class="text-muted">{{ p.email || '—' }}</td>
+                <td>{{ p.fechaNac ? (p.fechaNac | date:'dd/MM/yyyy') : '—' }}</td>
+                <td class="text-center">
+                  @if (esResidenteActivo(p.idPersona)) {
+                    <span class="badge bg-success-subtle text-success border border-success fw-semibold px-2 py-1">
+                      <i class="bi bi-check-circle-fill me-1"></i>Activo
+                    </span>
+                  } @else {
+                    <span class="badge bg-light text-muted border fw-normal px-2 py-1">
+                      <i class="bi bi-dash-circle me-1"></i>Inactivo
+                    </span>
+                  }
+                </td>
+                <td class="text-end pe-4">
+                  <div class="btn-group btn-group-sm">
+                    <a [routerLink]="['/clientes/editar', p.idPersona]" class="btn btn-outline-primary" title="Editar">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <button (click)="eliminarPersona(p.idPersona)" class="btn btn-outline-danger" title="Eliminar">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,177 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="fw-bold mb-0 text-upeu-primary"><i class="bi bi-file-earmark-text me-2"></i>Contratos y Reservas</h3>
+      <p class="text-muted small mb-0">Gestión de alquileres con control de vigencia y plazos automáticos</p>
+    </div>
+    <a routerLink="/contratos/nuevo" class="btn btn-upeu-primary shadow-sm">
+      <i class="bi bi-plus-circle me-1"></i>Nuevo Contrato
+    </a>
+  </div>
+
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="text-muted mt-2">Cargando contratos...</p>
+    </div>
+  } @else if (contratos.length === 0) {
+    <div class="card p-5 text-center border-0 shadow-sm">
+      <i class="bi bi-calendar-x text-muted fs-1 mb-2"></i>
+      <h5>No hay contratos registrados</h5>
+      <p class="text-muted">Comienza registrando el primer contrato o reserva de habitación.</p>
+      <div>
+        <a routerLink="/contratos/nuevo" class="btn btn-upeu-primary">Crear Contrato</a>
+      </div>
+    </div>
+  } @else {
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="ps-4" style="width: 50px">N°</th>
+              <th scope="col">Habitación</th>
+              <th scope="col">Residente</th>
+              <th scope="col">Vigencia (Inicio → Fin)</th>
+              <th scope="col">Día de Pago</th>
+              <th scope="col">Mensualidad</th>
+              <th scope="col">Estado</th>
+              <th scope="col" class="text-end pe-4">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of contratos; track c.idContrato; let i = $index) {
+              @let vig = getVigencia(c);
+              <tr>
+                <td class="ps-4 fw-bold text-muted">{{ i + 1 }}</td>
+                <td>
+                  <span class="badge bg-primary bg-opacity-10 text-primary fs-6 px-2 py-1 fw-semibold">
+                    <i class="bi bi-door-closed me-1"></i>{{ getNombreHabitacion(c.idHabitacion) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="fw-bold text-dark">{{ getNombreCliente(c.idCliente) }}</div>
+                  <small class="text-muted">{{ getNombreTipoContrato(c.idTipoContrato) }}</small>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="fw-semibold text-dark">{{ vig.rango }}</span>
+                    <span class="badge bg-light text-dark border">{{ vig.plazoTexto }}</span>
+                  </div>
+                  <small [ngClass]="vig.estadoVigencia === 'por_vencer' ? 'text-warning fw-semibold' : 'text-muted'">
+                    <i class="bi me-1" [ngClass]="vig.estadoVigencia === 'finalizado' ? 'bi-clock-history' : 'bi-hourglass-split'"></i>
+                    {{ vig.textoRestante }}
+                  </small>
+                </td>
+                <td>
+                  <span class="badge bg-light text-dark border">
+                    <i class="bi bi-calendar3 me-1 text-primary"></i>Día {{ vig.diaCobro }} de cada mes
+                  </span>
+                </td>
+                <td class="fw-bold text-dark">
+                  S/ {{ c.monto | number:'1.2-2' }} <small class="text-muted fw-normal">/ mes</small>
+                </td>
+                <td>
+                  <span class="badge rounded-pill" [ngClass]="getEstadoBadge(c)">
+                    {{ getEstadoTexto(c) }}
+                  </span>
+                </td>
+                <td class="text-end pe-4">
+                  <div class="btn-group btn-group-sm">
+                    <!-- Botón para ver Pagos -->
+                    <a routerLink="/pagos" class="btn btn-outline-success" title="Ver Historial de Pagos de este Residente">
+                      <i class="bi bi-wallet2"></i>
+                    </a>
+                    <!-- Ver Detalles -->
+                    <button (click)="verDetalle(c)" class="btn btn-outline-info" title="Ver Detalles del Contrato">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <!-- Editar -->
+                    <a [routerLink]="['/contratos/editar', c.idContrato]" class="btn btn-outline-primary" title="Editar">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <!-- Eliminar -->
+                    <button (click)="eliminar(c.idContrato)" class="btn btn-outline-danger" title="Eliminar">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL PARA VER DETALLES DEL CONTRATO Y COMPROBANTE -->
+  @if (contratoSeleccionado) {
+    @let vig = getVigencia(contratoSeleccionado);
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header bg-upeu-primary text-white">
+            <h5 class="modal-title fw-bold">
+              <i class="bi bi-file-earmark-text me-2"></i>Contrato - {{ getNombreHabitacion(contratoSeleccionado.idHabitacion) }}
+            </h5>
+            <button type="button" class="btn-close btn-close-white" (click)="cerrarDetalle()"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="row g-3">
+              <!-- Información del Contrato -->
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 h-100">
+                  <h6 class="fw-bold text-primary mb-3"><i class="bi bi-info-circle me-1"></i>Datos del Alquiler</h6>
+                  <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><strong>Habitación asignada:</strong> <span class="badge bg-primary ms-1">{{ getNombreHabitacion(contratoSeleccionado.idHabitacion) }}</span></li>
+                    <li class="mb-2"><strong>Residente:</strong> {{ getNombreCliente(contratoSeleccionado.idCliente) }}</li>
+                    <li class="mb-2"><strong>Tipo de Contrato:</strong> {{ getNombreTipoContrato(contratoSeleccionado.idTipoContrato) }}</li>
+                    <li class="mb-2"><strong>Plazo acordado:</strong> <span class="badge bg-info text-dark ms-1">{{ vig.plazoTexto }}</span></li>
+                    <li class="mb-2"><strong>Vigencia:</strong> {{ vig.rango }}</li>
+                    <li class="mb-2"><strong>Día de Cobro Mensual:</strong> Día {{ vig.diaCobro }} de cada mes</li>
+                    <li class="mb-2"><strong>Mensualidad:</strong> <span class="fw-bold text-success fs-5">S/ {{ contratoSeleccionado.monto | number:'1.2-2' }}</span></li>
+                    <li class="mb-2"><strong>Estado:</strong> 
+                      <span class="badge rounded-pill ms-2" [ngClass]="getEstadoBadge(contratoSeleccionado)">
+                        {{ getEstadoTexto(contratoSeleccionado) }}
+                      </span>
+                    </li>
+                    <li><strong>Tiempo restante:</strong> {{ vig.textoRestante }}</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Comprobante / Voucher Adjunto -->
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 h-100 text-center d-flex flex-column justify-content-center">
+                  <h6 class="fw-bold text-primary mb-3"><i class="bi bi-receipt me-1"></i>Comprobante de Reserva / Garantía</h6>
+                  @if (contratoSeleccionado.imgPagoReserva && contratoSeleccionado.imgPagoReserva !== 'no-image.png') {
+                    <div class="mb-2">
+                      <img [src]="'/LP2_ResidenciaA-J/images/' + contratoSeleccionado.imgPagoReserva" 
+                           alt="Comprobante" class="img-fluid rounded border shadow-sm" style="max-height: 220px; object-fit: contain;">
+                    </div>
+                    <div>
+                      <a [href]="'/LP2_ResidenciaA-J/images/' + contratoSeleccionado.imgPagoReserva" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>Ver en tamaño completo
+                      </a>
+                    </div>
+                  } @else {
+                    <div class="py-4 text-muted">
+                      <i class="bi bi-image fs-1 d-block mb-2 text-secondary"></i>
+                      <span>No se adjuntó comprobante de reserva inicial</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer d-flex justify-content-between">
+            <a routerLink="/pagos" class="btn btn-outline-success btn-sm" (click)="cerrarDetalle()">
+              <i class="bi bi-wallet2 me-1"></i>Ir al Historial de Pagos
+            </a>
+            <button type="button" class="btn btn-secondary btn-sm" (click)="cerrarDetalle()">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

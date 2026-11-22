@@ -1,0 +1,173 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-0 text-upeu-primary"><i class="bi bi-door-closed me-2"></i>Gestión de Habitaciones</h3>
+      <p class="text-muted small mb-0">Listado de habitaciones registradas en la residencia</p>
+    </div>
+    <a routerLink="/habitaciones/nuevo" class="btn btn-upeu-primary shadow-sm">
+      <i class="bi bi-plus-circle me-1"></i>Nueva Habitación
+    </a>
+  </div>
+
+  @if (filtroTexto) {
+    <div class="alert alert-info py-2 px-3 d-flex justify-content-between align-items-center mb-3">
+      <span>
+        <i class="bi bi-funnel me-1"></i> Filtrando por: <strong>"{{ filtroTexto }}"</strong>
+        ({{ habitacionesFiltradas.length }} resultados)
+      </span>
+      <button class="btn btn-sm btn-outline-secondary" (click)="limpiarFiltro()">
+        <i class="bi bi-x-circle me-1"></i>Mostrar todas
+      </button>
+    </div>
+  }
+
+  @if (cargando) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="text-muted mt-2">Cargando habitaciones...</p>
+    </div>
+  } @else if (habitaciones.length === 0) {
+    <div class="card p-5 text-center border-0 shadow-sm">
+      <i class="bi bi-inbox text-muted fs-1 mb-2"></i>
+      <h5>No hay habitaciones registradas</h5>
+      <p class="text-muted">Comienza agregando la primera habitación de la residencia.</p>
+      <div>
+        <a routerLink="/habitaciones/nuevo" class="btn btn-upeu-primary">Crear Habitación</a>
+      </div>
+    </div>
+  } @else if (habitacionesFiltradas.length === 0) {
+    <div class="card p-5 text-center border-0 shadow-sm">
+      <i class="bi bi-search text-muted fs-1 mb-2"></i>
+      <h5>No se encontraron habitaciones</h5>
+      <p class="text-muted">No hay resultados para "{{ filtroTexto }}".</p>
+      <div>
+        <button class="btn btn-outline-secondary" (click)="limpiarFiltro()">Limpiar Búsqueda</button>
+      </div>
+    </div>
+  } @else {
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="ps-4">N°</th>
+              <th scope="col">Foto</th>
+              <th scope="col">Número</th>
+              <th scope="col">Piso</th>
+              <th scope="col">Descripción</th>
+              <th scope="col">Precio Mensual</th>
+              <th scope="col">Estado</th>
+              <th scope="col" class="text-end pe-4">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (h of habitacionesFiltradas; track h.idHabitacion; let i = $index) {
+              <tr>
+                <td class="ps-4 fw-bold text-muted">{{ i + 1 }}</td>
+                <td>
+                  @if (h.imgHabitacion && h.imgHabitacion !== 'no-image.png') {
+                    <img [src]="'/LP2_ResidenciaA-J/images/' + h.imgHabitacion" alt="Habitación" class="rounded shadow-sm border" style="width: 48px; height: 48px; object-fit: cover; cursor: pointer;" (click)="verDetalle(h)" title="Ver foto">
+                  } @else {
+                    <div class="rounded bg-light text-muted d-flex align-items-center justify-content-center border" style="width: 48px; height: 48px;">
+                      <i class="bi bi-door-closed fs-5 text-secondary"></i>
+                    </div>
+                  }
+                </td>
+                <td>
+                  <span class="fw-bold text-primary fs-6">{{ h.numero }}</span>
+                </td>
+                <td>Piso {{ h.piso }}</td>
+                <td class="text-muted">{{ h.descripcion || 'Sin descripción' }}</td>
+                <td class="fw-semibold text-dark">S/ {{ h.precio | number:'1.2-2' }}</td>
+                <td>
+                  <span class="badge rounded-pill" [ngClass]="getEstadoBadge(h.estado)">
+                    {{ getEstadoTexto(h.estado) }}
+                  </span>
+                </td>
+                <td class="text-end pe-4">
+                  <div class="btn-group btn-group-sm">
+                    <!-- Ojito para ver detalles -->
+                    <button (click)="verDetalle(h)" class="btn btn-outline-info" title="Ver Detalles">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <!-- Editar -->
+                    <a [routerLink]="['/habitaciones/editar', h.idHabitacion]" class="btn btn-outline-primary" title="Editar">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <!-- Eliminar -->
+                    <button (click)="eliminar(h.idHabitacion)" class="btn btn-outline-danger" title="Eliminar">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL PARA VER DETALLES DE LA HABITACIÓN -->
+  @if (habitacionSeleccionada) {
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header bg-upeu-primary text-white">
+            <h5 class="modal-title fw-bold">
+              <i class="bi bi-door-open me-2"></i>Habitación {{ habitacionSeleccionada.numero }} (Piso {{ habitacionSeleccionada.piso }})
+            </h5>
+            <button type="button" class="btn-close btn-close-white" (click)="cerrarDetalle()"></button>
+          </div>
+          <div class="modal-body p-4">
+            <!-- Imagen grande -->
+            <div class="text-center mb-3">
+              @if (habitacionSeleccionada.imgHabitacion && habitacionSeleccionada.imgHabitacion !== 'no-image.png') {
+                <img [src]="'/LP2_ResidenciaA-J/images/' + habitacionSeleccionada.imgHabitacion" 
+                     alt="Habitación" class="img-fluid rounded border shadow-sm mb-2" style="max-height: 250px; width: 100%; object-fit: cover;">
+                <div>
+                  <a [href]="'/LP2_ResidenciaA-J/images/' + habitacionSeleccionada.imgHabitacion" target="_blank" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>Ver imagen completa
+                  </a>
+                </div>
+              } @else {
+                <div class="p-4 bg-light rounded border text-muted">
+                  <i class="bi bi-image fs-1 d-block mb-1 text-secondary"></i>
+                  <span>No tiene foto asignada</span>
+                </div>
+              }
+            </div>
+
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span class="text-muted">Número:</span>
+                <span class="fw-bold">{{ habitacionSeleccionada.numero }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span class="text-muted">Piso:</span>
+                <span>Piso {{ habitacionSeleccionada.piso }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span class="text-muted">Precio Mensual:</span>
+                <span class="fw-bold text-success fs-5">S/ {{ habitacionSeleccionada.precio | number:'1.2-2' }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span class="text-muted">Estado actual:</span>
+                <span class="badge rounded-pill" [ngClass]="getEstadoBadge(habitacionSeleccionada.estado)">
+                  {{ getEstadoTexto(habitacionSeleccionada.estado) }}
+                </span>
+              </li>
+              <li class="list-group-item px-0">
+                <span class="text-muted d-block mb-1">Descripción:</span>
+                <p class="mb-0 text-dark small bg-light p-2 rounded">{{ habitacionSeleccionada.descripcion || 'Sin descripción detallada.' }}</p>
+              </li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cerrarDetalle()">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

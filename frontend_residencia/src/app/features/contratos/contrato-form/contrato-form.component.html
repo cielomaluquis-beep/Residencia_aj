@@ -1,0 +1,187 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-upeu-primary text-white py-3">
+          <h5 class="mb-0 fw-bold">
+            <i class="bi" [ngClass]="isEditMode ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
+            {{ isEditMode ? 'Editar Contrato / Reserva' : 'Nuevo Contrato / Reserva' }}
+          </h5>
+        </div>
+
+        <div class="card-body p-4">
+          <form [formGroup]="form" (ngSubmit)="guardar()">
+            <div class="row g-3">
+              <!-- Selección de Habitación -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Habitación <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="idHabitacion" (change)="alCambiarHabitacion($event)"
+                        [ngClass]="{'is-invalid': form.get('idHabitacion')?.touched && form.get('idHabitacion')?.invalid}">
+                  <option value="" disabled selected>Seleccione una habitación</option>
+                  @for (h of habitaciones; track h.idHabitacion) {
+                    <option [value]="h.idHabitacion">
+                      Hab. {{ h.numero }} (Piso {{ h.piso }}) - S/ {{ h.precio }} ({{ getEstadoTexto(h.estado) }})
+                    </option>
+                  }
+                </select>
+                @if (form.get('idHabitacion')?.touched && form.get('idHabitacion')?.invalid) {
+                  <div class="invalid-feedback">Debe seleccionar una habitación.</div>
+                }
+              </div>
+
+              <!-- Selección de Cliente / Residente -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Residente <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="idCliente"
+                        [ngClass]="{'is-invalid': form.get('idCliente')?.touched && form.get('idCliente')?.invalid}">
+                  <option value="" disabled selected>Seleccione un residente</option>
+                  @for (c of clientes; track c.idCliente) {
+                    <option [value]="c.idCliente">{{ getNombreCliente(c.idPersona) }}</option>
+                  }
+                </select>
+                @if (form.get('idCliente')?.touched && form.get('idCliente')?.invalid) {
+                  <div class="invalid-feedback">Debe seleccionar un residente.</div>
+                }
+              </div>
+
+              <!-- Tipo de Contrato -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Tipo de Contrato <span class="text-danger">*</span></label>
+                @if (tiposContrato.length > 0) {
+                  <select class="form-select" formControlName="idTipoContrato">
+                    @for (t of tiposContrato; track t.idTipoContrato) {
+                      <option [value]="t.idTipoContrato">{{ t.nombre }}</option>
+                    }
+                  </select>
+                } @else {
+                  <select class="form-select" formControlName="idTipoContrato">
+                    <option [value]="1">Mensual</option>
+                    <option [value]="2">Semestral</option>
+                    <option [value]="3">Anual</option>
+                  </select>
+                }
+              </div>
+
+              <!-- Monto Mensual -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Mensualidad Acordada (S/) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text">S/</span>
+                  <input type="number" step="0.5" class="form-control" formControlName="monto" placeholder="0.00"
+                         [ngClass]="{'is-invalid': form.get('monto')?.touched && form.get('monto')?.invalid}">
+                </div>
+                @if (form.get('monto')?.touched && form.get('monto')?.invalid) {
+                  <div class="text-danger small mt-1">El monto mensual es obligatorio y mayor o igual a 0.</div>
+                }
+              </div>
+
+              <!-- Duración / Plazo del Contrato -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Plazo / Duración <span class="text-danger">*</span></label>
+                <select class="form-select border-primary" formControlName="plazoMeses">
+                  <option value="1">1 Mes</option>
+                  <option value="3">3 Meses (Trimestre)</option>
+                  <option value="6">6 Meses (Semestre Académico)</option>
+                  <option value="12">12 Meses (1 Año Completo)</option>
+                  <option value="custom">Personalizado</option>
+                </select>
+                <small class="text-muted">Calcula automáticamente el fin del contrato.</small>
+              </div>
+
+              <!-- Fecha Inicio -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Fecha de Inicio <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" formControlName="fechaInicio" [min]="fechaMinimaInicio">
+                <small class="text-muted">Define el día de cobro mensual (Día {{ getDiaCobro() }}).</small>
+              </div>
+
+              <!-- Fecha Fin -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Fecha de Fin <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" formControlName="fechaFin"
+                       [min]="form.get('fechaInicio')?.value"
+                       [ngClass]="{'is-invalid': form.get('fechaFin')?.touched && form.get('fechaFin')?.invalid}">
+                @if (form.get('fechaFin')?.touched && form.get('fechaFin')?.invalid) {
+                  <div class="invalid-feedback">La fecha de fin es obligatoria y posterior al inicio.</div>
+                }
+                <small class="text-success fw-semibold">Fin de vigencia del alquiler.</small>
+              </div>
+
+              <!-- Banner de Resumen de Vigencia para el Usuario -->
+              <div class="col-12">
+                <div class="alert alert-primary bg-primary bg-opacity-10 border-primary border-opacity-25 py-2 px-3 small d-flex align-items-center mb-0 rounded-3">
+                  <i class="bi bi-info-circle-fill text-primary me-2 fs-5"></i>
+                  <div>
+                    <strong>Resumen del Contrato:</strong>
+                    Vigencia de <strong>{{ getPlazoTexto() }}</strong> (del {{ form.get('fechaInicio')?.value | date:'dd/MM/yyyy' }} al {{ form.get('fechaFin')?.value | date:'dd/MM/yyyy' }}).
+                    <span class="ms-1">Cobro mensual: <strong>Día {{ getDiaCobro() }} de cada mes</strong>.</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fecha Reserva -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Fecha de Registro / Reserva <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" formControlName="fechaReserva" [min]="fechaMinimaInicio" [max]="fechaHoy">
+              </div>
+
+              <!-- Método de Pago Inicial -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Método Pago Inicial (Reserva) <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="metodoPago">
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Plin">Plin</option>
+                  <option value="Yape">Yape</option>
+                  <option value="Transferencia">Transferencia Bancaria</option>
+                  <option value="Tarjeta">Tarjeta de Débito / Crédito</option>
+                </select>
+                <small class="text-muted">Aplica solo a la reserva. Los meses posteriores se pagan con el método que elija el alumno.</small>
+              </div>
+
+              <!-- Estado -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Estado del Contrato <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="estado">
+                  <option value="A">Activo / Vigente</option>
+                  <option value="P">Pendiente de Aprobación</option>
+                  <option value="F">Finalizado</option>
+                  <option value="C">Cancelado</option>
+                </select>
+              </div>
+
+              <!-- Comprobante / Voucher de Reserva -->
+              <div class="col-12">
+                <label class="form-label fw-semibold">Comprobante de Pago / Voucher de Reserva</label>
+                <input type="file" (change)="onFileSelected($event)" class="form-control" accept="image/*">
+                <div class="form-text">Adjunta la foto o captura del comprobante (Yape, Plin o Transferencia).</div>
+
+                @if (fotoPreview) {
+                  <div class="mt-3">
+                    <p class="small text-muted mb-1">Vista previa de comprobante:</p>
+                    <img [src]="fotoPreview" alt="Voucher" class="rounded border shadow-sm" style="max-height: 180px; max-width: 100%; object-fit: cover;">
+                  </div>
+                } @else if (imgActual) {
+                  <div class="mt-3">
+                    <p class="small text-muted mb-1">Comprobante registrado:</p>
+                    <img [src]="'/LP2_ResidenciaA-J/images/' + imgActual" alt="Voucher actual" class="rounded border shadow-sm" style="max-height: 180px; max-width: 100%; object-fit: cover;">
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <a routerLink="/contratos" class="btn btn-outline-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-upeu-primary" [disabled]="guardando">
+                @if (guardando) {
+                  <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                }
+                {{ isEditMode ? 'Guardar Cambios' : 'Registrar Contrato' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
