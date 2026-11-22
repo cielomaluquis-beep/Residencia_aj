@@ -1,0 +1,35 @@
+.navbar {
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+  z-index: 1030;
+}
+
+.notif-dropdown-menu {
+  width: 360px;
+  max-width: 90vw;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 8px !important;
+}
+
+.notif-list-container {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.notif-list-container::-webkit-scrollbar {
+  width: 5px;
+}
+.notif-list-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.notif-item {
+  white-space: normal;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.notif-item:hover {
+  background-color: #f1f5f9;
+}
