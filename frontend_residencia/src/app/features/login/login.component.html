@@ -1,0 +1,56 @@
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+
+      <!-- Cabecera Azul UPeU -->
+      <div class="modal-header bg-upeu-primary text-white py-3">
+        <h5 class="modal-title fw-bold" id="loginModalLabel">Iniciar Sesión</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
+          id="closeLoginModal"></button>
+      </div>
+
+      <!-- Cuerpo del Modal -->
+      <div class="modal-body p-4 text-center">
+        <!-- Logo UPeU -->
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQX-NCzD3Rronfz2DGRYOhxPY_nHme9NtTEoA&s"
+          alt="Logo UPeU" class="mb-3" style="max-width: 170px;">
+
+        <p class="text-muted small mb-4">Sistema de Gestión - Residencia Universitaria A&J</p>
+
+        <form (ngSubmit)="login()">
+          <div class="form-floating mb-3 text-start">
+            <input type="text" class="form-control" id="userInput" placeholder="Usuario" [(ngModel)]="username"
+              name="username" required autocomplete="username">
+            <label for="userInput">Usuario</label>
+          </div>
+
+          <div class="form-floating mb-3 text-start">
+            <input type="password" class="form-control" id="passInput" placeholder="Contraseña" [(ngModel)]="password"
+              name="password" required autocomplete="current-password">
+            <label for="passInput">Contraseña</label>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 py-2 fs-5 fw-semibold shadow-sm" [disabled]="isLoading">
+            @if (isLoading) {
+              <span class="spinner-border spinner-border-sm me-2"></span>Ingresando...
+            } @else {
+              Ingresar
+            }
+          </button>
+        </form>
+      </div>
+
+      <!-- Pie del Modal con enlace a Registro -->
+      <div class="modal-footer justify-content-center border-0 pt-0 pb-4">
+        <p class="text-muted small mb-0">
+          ¿No tienes cuenta?
+          <a href="javascript:void(0)" class="text-primary fw-bold text-decoration-none" data-bs-toggle="modal"
+            data-bs-target="#registerModal">
+            Regístrate aquí
+          </a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>

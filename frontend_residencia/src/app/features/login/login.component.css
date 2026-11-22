@@ -1,0 +1,25 @@
+.modal-content {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.modal-header {
+  border-bottom: none;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.form-control:focus {
+  border-color: #003A6C;
+  box-shadow: 0 0 0 0.25rem rgba(0, 58, 108, 0.2);
+}

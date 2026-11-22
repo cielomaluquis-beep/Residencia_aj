@@ -1,0 +1,83 @@
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg">
+
+      <!-- Cabecera Azul UPeU -->
+      <div class="modal-header bg-upeu-primary text-white py-3">
+        <h5 class="modal-title fw-bold" id="registerModalLabel">Registro de Residente / Nuevo Usuario</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+          id="closeRegisterModal"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <form (ngSubmit)="registrar()" #regForm="ngForm">
+          <div class="row">
+            <!-- Datos Personales -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold">Nombre Completo <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" [(ngModel)]="userData.nombre" name="nombre"
+                placeholder="Ej. Fabiola Ticlavilca" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" [(ngModel)]="userData.email" name="email"
+                placeholder="correo@ejemplo.com" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold">Teléfono / Celular</label>
+              <input type="text" class="form-control" [(ngModel)]="userData.telefono" name="telefono"
+                placeholder="9 dígitos (opcional)" pattern="9\d{8}" #tel="ngModel">
+              @if (tel.invalid && tel.touched) {
+                <small class="text-danger">Debe empezar con 9 y tener 9 dígitos</small>
+              }
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold">Dirección</label>
+              <input type="text" class="form-control" [(ngModel)]="userData.direccion" name="direccion"
+                placeholder="Dirección o ciudad de procedencia">
+            </div>
+
+            <div class="col-12"><hr class="my-3"></div>
+
+            <!-- Credenciales de acceso -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold">Nombre de Usuario <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" [(ngModel)]="userData.usuario" name="usuario"
+                placeholder="Mínimo 4 caracteres" required minlength="4">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold">Contraseña <span class="text-danger">*</span></label>
+              <input type="password" class="form-control" [(ngModel)]="userData.password" name="password"
+                placeholder="Mínimo 6 caracteres" required minlength="6">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 py-2 mt-3 fs-6 fw-semibold shadow-sm"
+            [disabled]="regForm.invalid || isLoading">
+            @if (isLoading) {
+              <span class="spinner-border spinner-border-sm me-2"></span>Registrando...
+            } @else {
+              Registrarme ahora
+            }
+          </button>
+        </form>
+      </div>
+
+      <!-- Pie del Modal con enlace a Login -->
+      <div class="modal-footer justify-content-center border-0 pt-0 pb-4">
+        <p class="text-muted small mb-0">
+          ¿Ya tienes cuenta?
+          <a href="javascript:void(0)" class="text-primary fw-bold text-decoration-none" data-bs-toggle="modal"
+            data-bs-target="#loginModal">
+            Inicia sesión aquí
+          </a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
