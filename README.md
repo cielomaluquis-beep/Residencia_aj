@@ -9,8 +9,10 @@
 - **Línea:** Software
 - **Tipo de proyecto:** PI
 - **Cursos:** LP2, ADS y BDS
-- **Grupo:** 2
-- **Docente:** Mg. Omar L. Loaiza Jara
+- **Grupo:** 1
+- **Docente:** 
+Jhan Arly Sanchez Tarrillo, 
+Joseph Ibrahim Cruz Rodriguez, Sergio Omar Valladares Castillo
 
 ### Integrantes del equipo
 
