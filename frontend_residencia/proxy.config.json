@@ -1,0 +1,12 @@
+{
+  "/api": {
+    "target": "http://localhost:8080/LP2_ResidenciaA-J",
+    "secure": false,
+    "logLevel": "debug"
+  },
+  "/LP2_ResidenciaA-J/images": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "logLevel": "debug"
+  }
+}
