@@ -1,0 +1,31 @@
+# Compilados y empaquetados
+target/
+**/target/
+dist/
+**/dist/
+.mvn/wrapper/maven-wrapper.jar
+**/.mvn/wrapper/maven-wrapper.jar
+
+# Dependencias Node.js
+node_modules/
+**/node_modules/
+.angular/
+**/.angular/
+
+# Archivos de IDEs
+.idea/
+**/.idea/
+*.iml
+.vscode/
+**/.vscode/
+.settings/
+**/.settings/
+.project
+**/.project
+.classpath
+**/.classpath
+
+# Archivos del sistema
+Thumbs.db
+.DS_Store
+*.log
