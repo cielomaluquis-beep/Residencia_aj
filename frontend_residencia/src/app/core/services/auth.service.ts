@@ -27,7 +27,35 @@ export class AuthService {
         }
       }),
       map(response => !!response.token),
-      catchError(() => {
+      catchError((err) => {
+        // Fallback exclusivo para demostración en GitHub Pages cuando el servidor local no está conectado
+        if (err.status === 0 || err.status === 404 || err.status === 405) {
+          const u = (credentials.usuario || '').trim().toLowerCase();
+          if (u === 'marta' || u === 'maria') {
+            localStorage.setItem('token_residencia', 'demo-jwt-token-admin');
+            localStorage.setItem('user_id_persona', '24');
+            localStorage.setItem('user_role', 'Administradora');
+            localStorage.setItem('user_name', 'Marta');
+            this.loggedIn.next(true);
+            return of(true);
+          }
+          if (u === 'elias' || u === 'juan') {
+            localStorage.setItem('token_residencia', 'demo-jwt-token-gerente');
+            localStorage.setItem('user_id_persona', '25');
+            localStorage.setItem('user_role', 'Gerente');
+            localStorage.setItem('user_name', 'Elias');
+            this.loggedIn.next(true);
+            return of(true);
+          }
+          if (u === 'carlosm' || u === 'carlos') {
+            localStorage.setItem('token_residencia', 'demo-jwt-token-estudiante');
+            localStorage.setItem('user_id_persona', '21');
+            localStorage.setItem('user_role', 'Estudiante');
+            localStorage.setItem('user_name', 'carlosm');
+            this.loggedIn.next(true);
+            return of(true);
+          }
+        }
         return of(false);
       })
     );

@@ -68,7 +68,7 @@
                 <td class="ps-4 fw-bold text-muted">{{ i + 1 }}</td>
                 <td>
                   @if (h.imgHabitacion && h.imgHabitacion !== 'no-image.png') {
-                    <img [src]="'/LP2_ResidenciaA-J/images/' + h.imgHabitacion" alt="Habitación" class="rounded shadow-sm border" style="width: 48px; height: 48px; object-fit: cover; cursor: pointer;" (click)="verDetalle(h)" title="Ver foto">
+                    <img [src]="'LP2_ResidenciaA-J/images/' + h.imgHabitacion" alt="Habitación" class="rounded shadow-sm border" style="width: 48px; height: 48px; object-fit: cover; cursor: pointer;" (click)="verDetalle(h)" title="Ver foto">
                   } @else {
                     <div class="rounded bg-light text-muted d-flex align-items-center justify-content-center border" style="width: 48px; height: 48px;">
                       <i class="bi bi-door-closed fs-5 text-secondary"></i>

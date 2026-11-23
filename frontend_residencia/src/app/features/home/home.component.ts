@@ -191,7 +191,7 @@ export class HomeComponent implements OnInit {
 
   getImagen(h: Habitacion): string | null {
     return h.imgHabitacion && h.imgHabitacion !== 'no-image.png'
-      ? '/LP2_ResidenciaA-J/images/' + h.imgHabitacion
+      ? 'LP2_ResidenciaA-J/images/' + h.imgHabitacion
       : null;
   }
 

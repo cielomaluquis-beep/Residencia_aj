@@ -168,11 +168,11 @@
                   <h6 class="fw-bold text-primary mb-3"><i class="bi bi-receipt me-1"></i>Comprobante de Reserva / Garantía</h6>
                   @if (contratoSeleccionado.imgPagoReserva && contratoSeleccionado.imgPagoReserva !== 'no-image.png') {
                     <div class="mb-2">
-                      <img [src]="'/LP2_ResidenciaA-J/images/' + contratoSeleccionado.imgPagoReserva" 
+                      <img [src]="'LP2_ResidenciaA-J/images/' + contratoSeleccionado.imgPagoReserva" 
                            alt="Comprobante" class="img-fluid rounded border shadow-sm" style="max-height: 220px; object-fit: contain;">
                     </div>
                     <div>
-                      <a [href]="'/LP2_ResidenciaA-J/images/' + contratoSeleccionado.imgPagoReserva" target="_blank" class="btn btn-sm btn-outline-primary">
+                      <a [href]="'LP2_ResidenciaA-J/images/' + contratoSeleccionado.imgPagoReserva" target="_blank" class="btn btn-sm btn-outline-primary">
                         <i class="bi bi-box-arrow-up-right me-1"></i>Ver en tamaño completo
                       </a>
                     </div>
