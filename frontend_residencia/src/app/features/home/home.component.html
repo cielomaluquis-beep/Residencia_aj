@@ -19,36 +19,6 @@
       <button type="button" class="btn btn-accent btn-lg" (click)="irAHabitaciones()">
         <i class="bi bi-door-open me-2"></i>Ver habitaciones
       </button>
-      @if (isAdmin) {
-        <a routerLink="/contratos/nuevo" class="btn btn-outline-light btn-lg">
-          <i class="bi bi-plus-circle me-2"></i>Nuevo contrato
-        </a>
-      } @else if (isLoggedIn) {
-        <a routerLink="/pagos" class="btn btn-outline-light btn-lg">
-          <i class="bi bi-cash-coin me-2"></i>Mis pagos
-        </a>
-      } @else {
-        <a [href]="whatsappUrl" target="_blank" rel="noopener" class="btn btn-outline-light btn-lg">
-          <i class="bi bi-whatsapp me-2"></i>Consultar disponibilidad
-        </a>
-      }
-    </div>
-
-    <div class="hero-stats anim-up" style="animation-delay: .7s">
-      <div class="stat-chip">
-        <strong>{{ habitacionesDisponibles }}</strong>
-        <span>Disponibles</span>
-      </div>
-      <div class="stat-chip">
-        <strong>{{ totalHabitaciones }}</strong>
-        <span>Habitaciones</span>
-      </div>
-      @if (precioDesde > 0) {
-        <div class="stat-chip">
-          <strong>S/ {{ precioDesde | number:'1.0-0' }}</strong>
-          <span>Desde / mes</span>
-        </div>
-      }
     </div>
   </div>
 
@@ -209,50 +179,6 @@
       }
     </div>
   </section>
-
-  <!-- ================= ACCESOS RÁPIDOS SEGÚN ROL ================= -->
-  @if (isLoggedIn) {
-    <section class="mb-5">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">Panel</span>
-          <h2>{{ isAdmin ? 'Gestión de la residencia' : 'Mi espacio' }}</h2>
-        </div>
-      </div>
-      <div class="row g-4">
-        <div class="col-md-6" [class.col-lg-3]="isAdmin" [class.col-lg-4]="!isAdmin">
-          <a routerLink="/habitaciones" class="quick-card">
-            <i class="bi bi-grid-fill text-primary"></i>
-            <h6>Habitaciones</h6>
-            <p>{{ isAdmin ? 'Administra precios, pisos y disponibilidad.' : 'Explora todas las habitaciones.' }}</p>
-          </a>
-        </div>
-        <div class="col-md-6" [class.col-lg-3]="isAdmin" [class.col-lg-4]="!isAdmin">
-          <a routerLink="/contratos" class="quick-card">
-            <i class="bi bi-calendar2-range-fill text-success"></i>
-            <h6>{{ isAdmin ? 'Contratos y reservas' : 'Mi contrato' }}</h6>
-            <p>{{ isAdmin ? 'Registra y controla la vigencia de contratos.' : 'Consulta la vigencia de tu contrato.' }}</p>
-          </a>
-        </div>
-        @if (isAdmin) {
-          <div class="col-md-6 col-lg-3">
-            <a routerLink="/clientes" class="quick-card">
-              <i class="bi bi-person-lines-fill text-info"></i>
-              <h6>Residentes</h6>
-              <p>Datos personales, DNI, teléfono y correo.</p>
-            </a>
-          </div>
-        }
-        <div class="col-md-6" [class.col-lg-3]="isAdmin" [class.col-lg-4]="!isAdmin">
-          <a routerLink="/pagos" class="quick-card">
-            <i class="bi bi-credit-card-2-front-fill text-warning"></i>
-            <h6>{{ isAdmin ? 'Control de pagos' : 'Mis pagos' }}</h6>
-            <p>{{ isAdmin ? 'Mensualidades, garantías y comprobantes.' : 'Revisa tus cuotas y comprobantes.' }}</p>
-          </a>
-        </div>
-      </div>
-    </section>
-  }
 
   <!-- ================= LLAMADO A LA ACCIÓN ================= -->
   @if (!isAdmin) {
