@@ -61,6 +61,27 @@ export class HomeComponent implements OnInit {
     return this.authService.isAdmin();
   }
 
+  get isAdministradora(): boolean {
+    return this.authService.isAdministradora();
+  }
+
+  get isGerente(): boolean {
+    return this.authService.isGerente();
+  }
+
+  get habitacionesOcupadas(): number {
+    return Math.max(0, this.totalHabitaciones - this.habitacionesDisponibles);
+  }
+
+  get tasaOcupacion(): number {
+    if (!this.totalHabitaciones) return 0;
+    return Math.round((this.habitacionesOcupadas / this.totalHabitaciones) * 100);
+  }
+
+  get ingresoPotencialMensual(): number {
+    return this.habitaciones.reduce((acc, h) => acc + (h.precio || 0), 0);
+  }
+
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }

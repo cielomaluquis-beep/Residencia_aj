@@ -13,39 +13,45 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+      <ul class="navbar-nav nav-pills-custom me-auto mb-2 mb-lg-0 ms-lg-3">
         <li class="nav-item">
           <a class="nav-link" routerLink="/home" routerLinkActive="active">
-            <i class="bi bi-house-door me-1"></i>Inicio
+            <i class="bi bi-house-door-fill"></i><span>Inicio</span>
           </a>
         </li>
 
-        <!-- Habitaciones -->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-door-closed me-1"></i>Habitaciones
-          </a>
-          <ul class="dropdown-menu shadow">
-            <li>
-              <a class="dropdown-item" routerLink="/habitaciones">
-                <i class="bi bi-list-ul me-2 text-primary"></i>Ver Habitaciones
-              </a>
-            </li>
-            @if (isAdmin) {
+        <!-- Habitaciones (Administradora: con dropdown de creación; Otros: enlace directo) -->
+        @if (isAdministradora) {
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-door-closed-fill"></i><span>Habitaciones</span>
+            </a>
+            <ul class="dropdown-menu shadow">
+              <li>
+                <a class="dropdown-item" routerLink="/habitaciones">
+                  <i class="bi bi-list-ul me-2 text-primary"></i>Ver Habitaciones
+                </a>
+              </li>
               <li>
                 <a class="dropdown-item" routerLink="/habitaciones/nuevo">
                   <i class="bi bi-plus-circle-fill me-2 text-success"></i>Nueva Habitación
                 </a>
               </li>
-            }
-          </ul>
-        </li>
+            </ul>
+          </li>
+        } @else {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/habitaciones" routerLinkActive="active">
+              <i class="bi bi-door-closed-fill"></i><span>Habitaciones</span>
+            </a>
+          </li>
+        }
 
-        <!-- Contratos / Reservas (Admin / Gerente) -->
-        @if (isAdmin) {
+        <!-- Contratos / Reservas (Administradora: con dropdown; Gerente: supervisión; Estudiante: Mi Contrato) -->
+        @if (isAdministradora) {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-file-earmark-text me-1"></i>Contratos / Reservas
+              <i class="bi bi-file-earmark-text-fill"></i><span>Contratos</span>
             </a>
             <ul class="dropdown-menu shadow">
               <li>
@@ -60,31 +66,34 @@
               </li>
             </ul>
           </li>
-        }
-
-        <!-- Mi Contrato (Estudiante / Residente) -->
-        @if (isLoggedIn && !isAdmin) {
+        } @else if (isGerente) {
           <li class="nav-item">
             <a class="nav-link" routerLink="/contratos" routerLinkActive="active">
-              <i class="bi bi-file-earmark-text me-1"></i>Mi Contrato
+              <i class="bi bi-file-earmark-text-fill"></i><span>Contratos</span>
+            </a>
+          </li>
+        } @else if (isLoggedIn) {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/contratos" routerLinkActive="active">
+              <i class="bi bi-file-earmark-text-fill"></i><span>Mi Contrato</span>
             </a>
           </li>
         }
 
-        <!-- Clientes / Residentes (Solo Admin y Gerente) -->
+        <!-- Clientes / Residentes (Administradora y Gerente) -->
         @if (isAdmin) {
           <li class="nav-item">
             <a class="nav-link" routerLink="/clientes" routerLinkActive="active">
-              <i class="bi bi-people me-1"></i>Residentes
+              <i class="bi bi-people-fill"></i><span>Residentes</span>
             </a>
           </li>
         }
 
-        <!-- Pagos (Admin / Gerente) -->
-        @if (isAdmin) {
+        <!-- Pagos (Administradora: con dropdown; Gerente: supervisión de ingresos; Estudiante: Mis Pagos) -->
+        @if (isAdministradora) {
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-cash-coin me-1"></i>Pagos
+              <i class="bi bi-cash-coin"></i><span>Pagos</span>
             </a>
             <ul class="dropdown-menu shadow">
               <li>
@@ -99,13 +108,16 @@
               </li>
             </ul>
           </li>
-        }
-
-        <!-- Mis Pagos (Estudiante / Residente) -->
-        @if (isLoggedIn && !isAdmin) {
+        } @else if (isGerente) {
           <li class="nav-item">
             <a class="nav-link" routerLink="/pagos" routerLinkActive="active">
-              <i class="bi bi-cash-coin me-1"></i>Mis Pagos
+              <i class="bi bi-graph-up-arrow"></i><span>Ingresos y Pagos</span>
+            </a>
+          </li>
+        } @else if (isLoggedIn) {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/pagos" routerLinkActive="active">
+              <i class="bi bi-cash-coin"></i><span>Mis Pagos</span>
             </a>
           </li>
         }

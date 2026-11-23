@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ClienteService } from '../../../core/services/cliente.service';
 import { AlertService } from '../../../core/services/alert.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Cliente, Persona } from '../../../core/interfaces/cliente.interface';
 
 @Component({
@@ -16,6 +17,11 @@ import { Cliente, Persona } from '../../../core/interfaces/cliente.interface';
 export class ClienteListComponent implements OnInit {
   private clienteService = inject(ClienteService);
   private alertService = inject(AlertService);
+  private authService = inject(AuthService);
+
+  get isAdministradora(): boolean {
+    return this.authService.isAdministradora();
+  }
 
   personas: Persona[] = [];
   clientes: Cliente[] = [];

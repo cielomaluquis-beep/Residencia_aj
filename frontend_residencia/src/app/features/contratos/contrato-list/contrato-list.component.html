@@ -4,7 +4,7 @@
       <h3 class="fw-bold mb-0 text-upeu-primary"><i class="bi bi-file-earmark-text me-2"></i>{{ isAdmin ? 'Contratos y Reservas' : 'Mi Contrato' }}</h3>
       <p class="text-muted small mb-0">{{ isAdmin ? 'Gestión de alquileres con control de vigencia y plazos automáticos' : 'Detalle y vigencia de tu contrato de alquiler' }}</p>
     </div>
-    @if (isAdmin) {
+    @if (isAdministradora) {
       <a routerLink="/contratos/nuevo" class="btn btn-upeu-primary shadow-sm">
         <i class="bi bi-plus-circle me-1"></i>Nuevo Contrato
       </a>
@@ -79,7 +79,7 @@
                   S/ {{ c.monto | number:'1.2-2' }} <small class="text-muted fw-normal">/ mes</small>
                 </td>
                 <td>
-                  @if (getEstadoTexto(c) === 'Renovar' && isAdmin) {
+                  @if (getEstadoTexto(c) === 'Renovar' && isAdministradora) {
                     <a [routerLink]="['/contratos/editar', c.idContrato]"
                        class="badge rounded-pill text-decoration-none px-3 py-2"
                        [ngClass]="getEstadoBadge(c)"
@@ -107,8 +107,8 @@
                     <button (click)="verDetalle(c)" class="btn btn-outline-info" title="Ver Detalles del Contrato">
                       <i class="bi bi-eye"></i>
                     </button>
-                    <!-- Editar / Eliminar (solo Admin / Gerente) -->
-                    @if (isAdmin) {
+                    <!-- Editar / Eliminar (solo Administradora) -->
+                    @if (isAdministradora) {
                       <a [routerLink]="['/contratos/editar', c.idContrato]" class="btn btn-outline-primary" title="Editar">
                         <i class="bi bi-pencil"></i>
                       </a>

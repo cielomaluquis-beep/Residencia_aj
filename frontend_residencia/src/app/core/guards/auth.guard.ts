@@ -30,3 +30,17 @@ export const adminGuard: CanActivateFn = (route, state) => {
   router.navigate(['/home']);
   return false;
 };
+
+export const administradoraGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+  const alertService = inject(AlertService);
+
+  if (authService.isLoggedIn() && authService.isAdministradora()) {
+    return true;
+  }
+
+  alertService.warning('Esta operación de registro/edición corresponde únicamente a la Administradora', 'Modo Supervisión');
+  router.navigate(['/home']);
+  return false;
+};

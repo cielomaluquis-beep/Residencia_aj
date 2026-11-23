@@ -32,6 +32,8 @@ export class HeaderComponent implements OnInit {
   userName: string = '';
   userRole: string = '';
   isAdmin: boolean = false;
+  isAdministradora: boolean = false;
+  isGerente: boolean = false;
   isEstudiante: boolean = false;
   isLoggedIn: boolean = false;
 
@@ -86,11 +88,15 @@ export class HeaderComponent implements OnInit {
         this.userName = this.authService.getUserName() || 'Usuario';
         this.userRole = this.authService.getRole() || 'RESIDENTE';
         this.isAdmin = this.authService.isAdmin();
+        this.isAdministradora = this.authService.isAdministradora();
+        this.isGerente = this.authService.isGerente();
         this.isEstudiante = this.authService.isEstudiante();
       } else {
         this.userName = '';
         this.userRole = '';
         this.isAdmin = false;
+        this.isAdministradora = false;
+        this.isGerente = false;
         this.isEstudiante = false;
       }
     });

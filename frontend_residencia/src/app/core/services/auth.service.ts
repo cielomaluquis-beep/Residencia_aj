@@ -60,9 +60,18 @@ export class AuthService {
     return localStorage.getItem('user_role') || '';
   }
 
-  isAdmin(): boolean {
+  isAdministradora(): boolean {
     const role = this.getRole().toUpperCase();
-    return role === 'ADMIN' || role === 'ADMINISTRADORA' || role === 'GERENTE';
+    return role === 'ADMIN' || role === 'ADMINISTRADORA';
+  }
+
+  isGerente(): boolean {
+    const role = this.getRole().toUpperCase();
+    return role === 'GERENTE';
+  }
+
+  isAdmin(): boolean {
+    return this.isAdministradora() || this.isGerente();
   }
 
   isEstudiante(): boolean {

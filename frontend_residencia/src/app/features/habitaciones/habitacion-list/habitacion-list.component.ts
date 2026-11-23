@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HabitacionService } from '../../../core/services/habitacion.service';
 import { AlertService } from '../../../core/services/alert.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Habitacion } from '../../../core/interfaces/habitacion.interface';
 
 @Component({
@@ -16,7 +17,12 @@ import { Habitacion } from '../../../core/interfaces/habitacion.interface';
 export class HabitacionListComponent implements OnInit {
   private habitacionService = inject(HabitacionService);
   private alertService = inject(AlertService);
+  private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
+
+  get isAdministradora(): boolean {
+    return this.authService.isAdministradora();
+  }
 
   habitaciones: Habitacion[] = [];
   cargando: boolean = true;

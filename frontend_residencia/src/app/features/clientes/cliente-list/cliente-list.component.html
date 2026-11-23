@@ -7,11 +7,15 @@
           <i class="bi bi-person-check-fill me-1"></i>{{ contarActivos() }} Activos
         </span>
       </h3>
-      <p class="text-muted small mb-0">Gestión de usuarios residentes de la residencia (haz clic en el estado para cambiar entre Activo e Inactivo)</p>
+      <p class="text-muted small mb-0">
+        {{ isAdministradora ? 'Gestión de usuarios residentes de la residencia (haz clic en el estado para cambiar entre Activo e Inactivo)' : 'Supervisión de residentes captados y estado de permanencia en tiempo real' }}
+      </p>
     </div>
-    <a routerLink="/clientes/nuevo" class="btn btn-upeu-primary shadow-sm">
-      <i class="bi bi-person-plus me-1"></i>Nuevo Residente
-    </a>
+    @if (isAdministradora) {
+      <a routerLink="/clientes/nuevo" class="btn btn-upeu-primary shadow-sm">
+        <i class="bi bi-person-plus me-1"></i>Nuevo Residente
+      </a>
+    }
   </div>
 
   @if (filtroTexto) {
@@ -84,32 +88,36 @@
                   @if (esResidenteActivo(p.idPersona)) {
                     <button type="button"
                             class="btn btn-sm badge bg-success-subtle text-success border border-success fw-semibold px-3 py-1"
-                            style="cursor: pointer;"
-                            (click)="toggleEstado(p)"
-                            title="Haz clic para cambiar a Inactivo">
+                            [style.cursor]="isAdministradora ? 'pointer' : 'default'"
+                            (click)="isAdministradora && toggleEstado(p)"
+                            [title]="isAdministradora ? 'Haz clic para cambiar a Inactivo' : 'Residente Activo'">
                       <i class="bi bi-check-circle-fill me-1"></i>Activo
-                      <i class="bi bi-arrow-repeat ms-1 opacity-75"></i>
+                      @if (isAdministradora) { <i class="bi bi-arrow-repeat ms-1 opacity-75"></i> }
                     </button>
                   } @else {
                     <button type="button"
                             class="btn btn-sm badge bg-light text-secondary border fw-normal px-3 py-1"
-                            style="cursor: pointer;"
-                            (click)="toggleEstado(p)"
-                            title="Haz clic para cambiar a Activo">
+                            [style.cursor]="isAdministradora ? 'pointer' : 'default'"
+                            (click)="isAdministradora && toggleEstado(p)"
+                            [title]="isAdministradora ? 'Haz clic para cambiar a Activo' : 'Residente Inactivo'">
                       <i class="bi bi-dash-circle me-1"></i>Inactivo
-                      <i class="bi bi-arrow-repeat ms-1 opacity-75"></i>
+                      @if (isAdministradora) { <i class="bi bi-arrow-repeat ms-1 opacity-75"></i> }
                     </button>
                   }
                 </td>
                 <td class="text-end pe-4">
-                  <div class="btn-group btn-group-sm">
-                    <a [routerLink]="['/clientes/editar', p.idPersona]" class="btn btn-outline-primary" title="Editar">
-                      <i class="bi bi-pencil"></i>
-                    </a>
-                    <button (click)="eliminarPersona(p.idPersona)" class="btn btn-outline-danger" title="Eliminar">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </div>
+                  @if (isAdministradora) {
+                    <div class="btn-group btn-group-sm">
+                      <a [routerLink]="['/clientes/editar', p.idPersona]" class="btn btn-outline-primary" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                      </a>
+                      <button (click)="eliminarPersona(p.idPersona)" class="btn btn-outline-danger" title="Eliminar">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  } @else {
+                    <span class="badge bg-light text-secondary border">Solo lectura</span>
+                  }
                 </td>
               </tr>
             }

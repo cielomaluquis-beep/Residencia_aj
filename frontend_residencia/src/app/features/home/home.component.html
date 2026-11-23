@@ -29,9 +29,9 @@
 
 <div class="container py-5">
 
-  <!-- ================= MÉTRICAS (Solo Admin / Gerente) ================= -->
+  <!-- ================= DASHBOARD EJECUTIVO EN TIEMPO REAL (Gerente / Administradora) ================= -->
   @if (isAdmin) {
-    <div class="row g-3 mb-5 metrics">
+    <div class="row g-3 mb-4 metrics">
       <div class="col-sm-6 col-lg-3">
         <div class="metric-card">
           <div class="metric-icon bg-primary-subtle text-primary"><i class="bi bi-door-closed-fill"></i></div>
@@ -45,7 +45,7 @@
         <div class="metric-card">
           <div class="metric-icon bg-success-subtle text-success"><i class="bi bi-file-earmark-check-fill"></i></div>
           <div>
-            <div class="metric-label">Contratos registrados</div>
+            <div class="metric-label">Contratos vigentes</div>
             <div class="metric-value text-success">{{ totalContratos }}</div>
           </div>
         </div>
@@ -54,7 +54,7 @@
         <div class="metric-card">
           <div class="metric-icon bg-info-subtle text-info"><i class="bi bi-people-fill"></i></div>
           <div>
-            <div class="metric-label">Residentes</div>
+            <div class="metric-label">Residentes activos</div>
             <div class="metric-value text-info">{{ totalClientes }}</div>
           </div>
         </div>
@@ -63,8 +63,80 @@
         <div class="metric-card">
           <div class="metric-icon bg-warning-subtle text-warning"><i class="bi bi-cash-stack"></i></div>
           <div>
-            <div class="metric-label">Total contratado</div>
+            <div class="metric-label">Ingresos contratados</div>
             <div class="metric-value">S/ {{ totalIngresos | number:'1.2-2' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de Supervisión Ejecutiva en Tiempo Real (Reemplaza el Excel semanal) -->
+    <div class="exec-panel mb-5">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div>
+          <span class="badge bg-upeu-primary text-white px-3 py-1 rounded-pill mb-1">
+            <i class="bi bi-broadcast me-1 text-warning"></i>Monitoreo en Tiempo Real
+          </span>
+          <h4 class="fw-bold text-upeu-primary mb-0">
+            {{ isGerente ? 'Panel Ejecutivo de Supervisión Gerencial' : 'Resumen Operativo de la Residencia' }}
+          </h4>
+          <small class="text-muted">Indicadores actualizados automáticamente desde la base de datos sin depender de hojas de Excel.</small>
+        </div>
+        <div class="d-flex gap-2">
+          <a routerLink="/pagos" class="btn btn-sm btn-outline-primary fw-semibold">
+            <i class="bi bi-graph-up-arrow me-1"></i>Ver Flujo de Pagos
+          </a>
+          <a routerLink="/clientes" class="btn btn-sm btn-outline-secondary fw-semibold">
+            <i class="bi bi-people me-1"></i>Residentes Captados
+          </a>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <!-- Ocupación en Tiempo Real -->
+        <div class="col-md-4">
+          <div class="exec-box h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold text-dark"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Tasa de Ocupación</span>
+              <span class="badge bg-primary-subtle text-primary fs-6">{{ tasaOcupacion }}%</span>
+            </div>
+            <div class="progress mb-2" style="height: 10px; border-radius: 999px;">
+              <div class="progress-bar bg-primary" role="progressbar" [style.width.%]="tasaOcupacion"></div>
+            </div>
+            <div class="d-flex justify-content-between small text-muted">
+              <span><i class="bi bi-circle-fill text-danger me-1" style="font-size: .55rem;"></i>{{ habitacionesOcupadas }} Ocupadas</span>
+              <span><i class="bi bi-circle-fill text-success me-1" style="font-size: .55rem;"></i>{{ habitacionesDisponibles }} Disponibles</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Supervisión de Ingresos -->
+        <div class="col-md-4">
+          <div class="exec-box h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold text-dark"><i class="bi bi-cash-coin text-success me-2"></i>Ingresos Mensuales</span>
+              <span class="badge bg-success-subtle text-success">En línea</span>
+            </div>
+            <div class="fs-4 fw-bold text-success mb-1">S/ {{ totalIngresos | number:'1.2-2' }} <small class="text-muted fs-6 fw-normal">/ mes</small></div>
+            <div class="small text-muted">
+              Capacidad total instalada: <strong>S/ {{ ingresoPotencialMensual | number:'1.2-2' }}</strong> mensuales
+            </div>
+          </div>
+        </div>
+
+        <!-- Captación Web y Contratos -->
+        <div class="col-md-4">
+          <div class="exec-box h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold text-dark"><i class="bi bi-person-plus-fill text-info me-2"></i>Captación de Residentes</span>
+              <span class="badge bg-info-subtle text-info">{{ totalClientes }} activos</span>
+            </div>
+            <p class="small text-muted mb-2">
+              Catálogo web público activo 24/7 con consulta directa por WhatsApp para captar nuevos estudiantes.
+            </p>
+            <a routerLink="/contratos" class="small fw-semibold text-decoration-none text-primary">
+              Supervisar {{ totalContratos }} contratos vigentes <i class="bi bi-arrow-right"></i>
+            </a>
           </div>
         </div>
       </div>
@@ -79,7 +151,7 @@
         <h2>Elige el espacio ideal para ti</h2>
         <p class="text-muted mb-0">Todas las habitaciones registradas en la residencia, con su precio y disponibilidad en tiempo real.</p>
       </div>
-      @if (isAdmin) {
+      @if (isAdministradora) {
         <a routerLink="/habitaciones/nuevo" class="btn btn-upeu-primary">
           <i class="bi bi-plus-circle me-1"></i>Agregar habitación
         </a>
@@ -222,11 +294,11 @@
             <div class="text-muted small">Mensualidad</div>
             <div class="fs-3 fw-bold text-upeu-primary">S/ {{ h.precio | number:'1.2-2' }}</div>
           </div>
-          @if (isAdmin) {
+          @if (isAdministradora) {
             <a [routerLink]="['/habitaciones/editar', h.idHabitacion]" class="btn btn-outline-primary">
               <i class="bi bi-pencil me-1"></i>Editar
             </a>
-          } @else if (esDisponible(h)) {
+          } @else if (esDisponible(h) && !isAdmin) {
             <a [href]="whatsappUrl" target="_blank" rel="noopener" class="btn btn-accent">
               <i class="bi bi-whatsapp me-1"></i>Quiero reservar
             </a>

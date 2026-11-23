@@ -2,10 +2,10 @@
   <!-- ENCABEZADO -->
   <div class="head d-flex justify-content-between align-items-start flex-wrap gap-3">
     <div>
-      <h1>{{ isAdmin ? 'Historial de Pagos' : 'Mis Pagos' }}</h1>
-      <p>{{ isAdmin ? 'Control de cuotas mensuales según la fecha de inicio del contrato de cada residente' : 'Consulta el estado de tus cuotas mensuales y tus comprobantes de pago' }}</p>
+      <h1>{{ isAdministradora ? 'Historial de Pagos' : isAdmin ? 'Supervisión de Ingresos y Pagos' : 'Mis Pagos' }}</h1>
+      <p>{{ isAdmin ? 'Control de cuotas mensuales y recaudación en tiempo real de cada residente' : 'Consulta el estado de tus cuotas mensuales y tus comprobantes de pago' }}</p>
     </div>
-    @if (isAdmin) {
+    @if (isAdministradora) {
       <a routerLink="/pagos/nuevo" class="btn btn-primary-custom shadow-sm">
         <i class="bi bi-plus-circle me-1"></i>Registrar Pago
       </a>
@@ -204,7 +204,7 @@
                             }
                           </td>
                           <td class="num">
-                            @if (isAdmin) {
+                            @if (isAdministradora) {
                               <button class="btn-del" type="button" title="Eliminar este abono" (click)="eliminarPago(p.idPago)">
                                 <i class="bi bi-trash"></i>
                               </button>
@@ -222,7 +222,7 @@
               }
 
               <!-- PIE DE CUOTA / FORMULARIO AGREGAR PAGO -->
-              @if (c.falta > 0 && isAdmin) {
+              @if (c.falta > 0 && isAdministradora) {
                 <div class="cfoot">
                   @if (addingCuota === c.n) {
                     <form class="add" (submit)="$event.preventDefault(); guardarPago(c)">

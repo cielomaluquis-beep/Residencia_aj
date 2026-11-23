@@ -80,6 +80,10 @@ export class PagoListComponent implements OnInit {
     return this.authService.isAdmin();
   }
 
+  get isAdministradora(): boolean {
+    return this.authService.isAdministradora();
+  }
+
   pagos: Pago[] = [];
   contratos: Contrato[] = [];
   habitaciones: Habitacion[] = [];

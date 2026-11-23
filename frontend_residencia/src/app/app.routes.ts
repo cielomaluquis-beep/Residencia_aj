@@ -9,7 +9,7 @@ import { ClienteListComponent } from './features/clientes/cliente-list/cliente-l
 import { ClienteFormComponent } from './features/clientes/cliente-form/cliente-form.component';
 import { PagoListComponent } from './features/pagos/pago-list/pago-list.component';
 import { PagoFormComponent } from './features/pagos/pago-form/pago-form.component';
-import { authGuard, adminGuard } from './core/guards/auth.guard';
+import { authGuard, adminGuard, administradoraGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -18,24 +18,24 @@ export const routes: Routes = [
     children: [
       { path: 'home', component: HomeComponent },
 
-      // Habitaciones (Catálogo público, crear/editar solo Admin/Gerente)
+      // Habitaciones (Catálogo público, crear/editar exclusivo Administradora)
       { path: 'habitaciones', component: HabitacionListComponent },
-      { path: 'habitaciones/nuevo', component: HabitacionFormComponent, canActivate: [adminGuard] },
-      { path: 'habitaciones/editar/:id', component: HabitacionFormComponent, canActivate: [adminGuard] },
+      { path: 'habitaciones/nuevo', component: HabitacionFormComponent, canActivate: [administradoraGuard] },
+      { path: 'habitaciones/editar/:id', component: HabitacionFormComponent, canActivate: [administradoraGuard] },
 
-      // Contratos (Ver con sesión; Crear/Editar solo Admin/Gerente)
+      // Contratos (Ver con sesión; Crear/Editar exclusivo Administradora)
       { path: 'contratos', component: ContratoListComponent, canActivate: [authGuard] },
-      { path: 'contratos/nuevo', component: ContratoFormComponent, canActivate: [adminGuard] },
-      { path: 'contratos/editar/:id', component: ContratoFormComponent, canActivate: [adminGuard] },
+      { path: 'contratos/nuevo', component: ContratoFormComponent, canActivate: [administradoraGuard] },
+      { path: 'contratos/editar/:id', component: ContratoFormComponent, canActivate: [administradoraGuard] },
 
-      // Residentes / Clientes (Exclusivo Admin/Gerente)
+      // Residentes / Clientes (Supervisión Admin/Gerente; Crear/Editar exclusivo Administradora)
       { path: 'clientes', component: ClienteListComponent, canActivate: [adminGuard] },
-      { path: 'clientes/nuevo', component: ClienteFormComponent, canActivate: [adminGuard] },
-      { path: 'clientes/editar/:id', component: ClienteFormComponent, canActivate: [adminGuard] },
+      { path: 'clientes/nuevo', component: ClienteFormComponent, canActivate: [administradoraGuard] },
+      { path: 'clientes/editar/:id', component: ClienteFormComponent, canActivate: [administradoraGuard] },
 
-      // Pagos (Ver con sesión; Registrar nuevo cobro solo Admin/Gerente)
+      // Pagos (Ver con sesión; Registrar nuevo cobro exclusivo Administradora)
       { path: 'pagos', component: PagoListComponent, canActivate: [authGuard] },
-      { path: 'pagos/nuevo', component: PagoFormComponent, canActivate: [adminGuard] },
+      { path: 'pagos/nuevo', component: PagoFormComponent, canActivate: [administradoraGuard] },
 
       { path: '', redirectTo: 'home', pathMatch: 'full' }
     ]

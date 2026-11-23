@@ -41,6 +41,10 @@ export class ContratoListComponent implements OnInit {
     return this.authService.isAdmin();
   }
 
+  get isAdministradora(): boolean {
+    return this.authService.isAdministradora();
+  }
+
   contratos: Contrato[] = [];
   habitaciones: Habitacion[] = [];
   clientes: Cliente[] = [];
