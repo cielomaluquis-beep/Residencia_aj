@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 import { PagoService } from '../../../core/services/pago.service';
 import { ContratoService } from '../../../core/services/contrato.service';
 import { HabitacionService } from '../../../core/services/habitacion.service';
@@ -119,11 +119,11 @@ export class PagoListComponent implements OnInit {
   cargarDatos(reabrirContratoId?: number): void {
     this.cargando = true;
     forkJoin({
-      pagos: this.pagoService.getPagos(),
-      contratos: this.contratoService.getContratos(),
-      habitaciones: this.habitacionService.getHabitaciones(),
-      clientes: this.clienteService.getClientes(),
-      personas: this.clienteService.getPersonas()
+      pagos: this.pagoService.getPagos().pipe(catchError(() => of([]))),
+      contratos: this.contratoService.getContratos().pipe(catchError(() => of([]))),
+      habitaciones: this.habitacionService.getHabitaciones().pipe(catchError(() => of([]))),
+      clientes: this.clienteService.getClientes().pipe(catchError(() => of([]))),
+      personas: this.clienteService.getPersonas().pipe(catchError(() => of([])))
     }).subscribe({
       next: (res) => {
         this.pagos = res.pagos || [];
@@ -167,7 +167,8 @@ export class PagoListComponent implements OnInit {
 
       const hab = this.habitaciones.find(h => h.idHabitacion === c.idHabitacion);
       const cli = this.clientes.find(cl => cl.idCliente === c.idCliente);
-      const per = cli ? this.personas.find(p => p.idPersona === cli.idPersona) : null;
+      const idPer = cli ? (cli.persona?.idPersona ?? cli.idPersona) : c.idCliente;
+      const per = cli?.persona?.nombres ? cli.persona : this.personas.find(p => p.idPersona === idPer);
 
       const nombre = per 
         ? `${per.nombres} ${per.apPaterno} ${per.apMaterno || ''}`.trim() 

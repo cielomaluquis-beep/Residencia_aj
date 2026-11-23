@@ -9,7 +9,7 @@ import { Contrato, TipContrato } from '../interfaces/contrato.interface';
 export class ContratoService {
   private http = inject(HttpClient);
   private apiUrl = '/api/v1/contratos';
-  private tiposUrl = '/api/v1/tipos-contrato';
+  private tiposUrl = '/api/v1/tipo-contratos';
 
   getContratos(): Observable<Contrato[]> {
     return this.http.get<Contrato[]>(this.apiUrl).pipe(
