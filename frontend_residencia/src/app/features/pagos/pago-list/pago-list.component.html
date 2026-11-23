@@ -2,15 +2,18 @@
   <!-- ENCABEZADO -->
   <div class="head d-flex justify-content-between align-items-start flex-wrap gap-3">
     <div>
-      <h1>Historial de Pagos</h1>
-      <p>Control de cuotas mensuales según la fecha de inicio del contrato de cada residente</p>
+      <h1>{{ isAdmin ? 'Historial de Pagos' : 'Mis Pagos' }}</h1>
+      <p>{{ isAdmin ? 'Control de cuotas mensuales según la fecha de inicio del contrato de cada residente' : 'Consulta el estado de tus cuotas mensuales y tus comprobantes de pago' }}</p>
     </div>
-    <a routerLink="/pagos/nuevo" class="btn btn-primary-custom shadow-sm">
-      <i class="bi bi-plus-circle me-1"></i>Registrar Pago
-    </a>
+    @if (isAdmin) {
+      <a routerLink="/pagos/nuevo" class="btn btn-primary-custom shadow-sm">
+        <i class="bi bi-plus-circle me-1"></i>Registrar Pago
+      </a>
+    }
   </div>
 
-  <!-- HERRAMIENTAS: SEGMENTOS Y BUSCADOR -->
+  <!-- HERRAMIENTAS: SEGMENTOS Y BUSCADOR (solo Admin / Gerente) -->
+  @if (isAdmin) {
   <div class="tools">
     <div class="seg" role="group" aria-label="Filtrar por estado">
       <button type="button" (click)="setFiltro('todos')" [attr.aria-pressed]="filtroEstado === 'todos'">
@@ -32,6 +35,7 @@
       <input type="search" placeholder="Buscar por nombre o habitación" [(ngModel)]="busqueda" aria-label="Buscar">
     </div>
   </div>
+  }
 
   <!-- SPINNER DE CARGA -->
   @if (cargando) {
@@ -57,7 +61,11 @@
             @if (residentesFiltrados.length === 0) {
               <tr>
                 <td colspan="5" class="empty">
-                  <i class="bi bi-search me-1"></i>No hay residentes que coincidan con la búsqueda o filtro.
+                  @if (isAdmin) {
+                    <i class="bi bi-search me-1"></i>No hay residentes que coincidan con la búsqueda o filtro.
+                  } @else {
+                    <i class="bi bi-info-circle me-1"></i>Aún no tienes un contrato registrado, por eso no hay pagos que mostrar.
+                  }
                 </td>
               </tr>
             } @else {
@@ -196,9 +204,11 @@
                             }
                           </td>
                           <td class="num">
-                            <button class="btn-del" type="button" title="Eliminar este abono" (click)="eliminarPago(p.idPago)">
-                              <i class="bi bi-trash"></i>
-                            </button>
+                            @if (isAdmin) {
+                              <button class="btn-del" type="button" title="Eliminar este abono" (click)="eliminarPago(p.idPago)">
+                                <i class="bi bi-trash"></i>
+                              </button>
+                            }
                           </td>
                         </tr>
                       }
@@ -212,7 +222,7 @@
               }
 
               <!-- PIE DE CUOTA / FORMULARIO AGREGAR PAGO -->
-              @if (c.falta > 0) {
+              @if (c.falta > 0 && isAdmin) {
                 <div class="cfoot">
                   @if (addingCuota === c.n) {
                     <form class="add" (submit)="$event.preventDefault(); guardarPago(c)">

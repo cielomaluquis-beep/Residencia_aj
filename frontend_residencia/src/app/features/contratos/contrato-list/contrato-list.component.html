@@ -1,12 +1,14 @@
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-      <h3 class="fw-bold mb-0 text-upeu-primary"><i class="bi bi-file-earmark-text me-2"></i>Contratos y Reservas</h3>
-      <p class="text-muted small mb-0">Gestión de alquileres con control de vigencia y plazos automáticos</p>
+      <h3 class="fw-bold mb-0 text-upeu-primary"><i class="bi bi-file-earmark-text me-2"></i>{{ isAdmin ? 'Contratos y Reservas' : 'Mi Contrato' }}</h3>
+      <p class="text-muted small mb-0">{{ isAdmin ? 'Gestión de alquileres con control de vigencia y plazos automáticos' : 'Detalle y vigencia de tu contrato de alquiler' }}</p>
     </div>
-    <a routerLink="/contratos/nuevo" class="btn btn-upeu-primary shadow-sm">
-      <i class="bi bi-plus-circle me-1"></i>Nuevo Contrato
-    </a>
+    @if (isAdmin) {
+      <a routerLink="/contratos/nuevo" class="btn btn-upeu-primary shadow-sm">
+        <i class="bi bi-plus-circle me-1"></i>Nuevo Contrato
+      </a>
+    }
   </div>
 
   @if (cargando) {
@@ -17,11 +19,16 @@
   } @else if (contratos.length === 0) {
     <div class="card p-5 text-center border-0 shadow-sm">
       <i class="bi bi-calendar-x text-muted fs-1 mb-2"></i>
-      <h5>No hay contratos registrados</h5>
-      <p class="text-muted">Comienza registrando el primer contrato o reserva de habitación.</p>
-      <div>
-        <a routerLink="/contratos/nuevo" class="btn btn-upeu-primary">Crear Contrato</a>
-      </div>
+      @if (isAdmin) {
+        <h5>No hay contratos registrados</h5>
+        <p class="text-muted">Comienza registrando el primer contrato o reserva de habitación.</p>
+        <div>
+          <a routerLink="/contratos/nuevo" class="btn btn-upeu-primary">Crear Contrato</a>
+        </div>
+      } @else {
+        <h5>Aún no tienes un contrato registrado</h5>
+        <p class="text-muted">Acércate a la administración de la residencia para reservar tu habitación.</p>
+      }
     </div>
   } @else {
     <div class="card border-0 shadow-sm">
@@ -86,14 +93,15 @@
                     <button (click)="verDetalle(c)" class="btn btn-outline-info" title="Ver Detalles del Contrato">
                       <i class="bi bi-eye"></i>
                     </button>
-                    <!-- Editar -->
-                    <a [routerLink]="['/contratos/editar', c.idContrato]" class="btn btn-outline-primary" title="Editar">
-                      <i class="bi bi-pencil"></i>
-                    </a>
-                    <!-- Eliminar -->
-                    <button (click)="eliminar(c.idContrato)" class="btn btn-outline-danger" title="Eliminar">
-                      <i class="bi bi-trash"></i>
-                    </button>
+                    <!-- Editar / Eliminar (solo Admin / Gerente) -->
+                    @if (isAdmin) {
+                      <a [routerLink]="['/contratos/editar', c.idContrato]" class="btn btn-outline-primary" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                      </a>
+                      <button (click)="eliminar(c.idContrato)" class="btn btn-outline-danger" title="Eliminar">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    }
                   </div>
                 </td>
               </tr>

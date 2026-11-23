@@ -6,6 +6,7 @@ import { ContratoService } from '../../../core/services/contrato.service';
 import { HabitacionService } from '../../../core/services/habitacion.service';
 import { ClienteService } from '../../../core/services/cliente.service';
 import { AlertService } from '../../../core/services/alert.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Contrato, TipContrato } from '../../../core/interfaces/contrato.interface';
 import { Habitacion } from '../../../core/interfaces/habitacion.interface';
 import { Cliente, Persona } from '../../../core/interfaces/cliente.interface';
@@ -33,6 +34,12 @@ export class ContratoListComponent implements OnInit {
   private habitacionService = inject(HabitacionService);
   private clienteService = inject(ClienteService);
   private alertService = inject(AlertService);
+  private authService = inject(AuthService);
+
+  /** Admin / Gerente ven todo; Estudiante solo su contrato */
+  get isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
 
   contratos: Contrato[] = [];
   habitaciones: Habitacion[] = [];
@@ -63,6 +70,18 @@ export class ContratoListComponent implements OnInit {
         this.tiposContrato = res.tipos || [];
         
         let lista = res.contratos || [];
+
+        // ESTUDIANTE: solo ve SU propio contrato
+        if (!this.isAdmin) {
+          const miIdPersona = this.authService.getIdPersona();
+          this.contratos = lista.filter(c => {
+            const cli = this.clientes.find(cl => cl.idCliente === c.idCliente);
+            return !!cli && cli.idPersona === miIdPersona;
+          });
+          this.cargando = false;
+          return;
+        }
+
         // Si la BD aún no tiene contratos guardados, proveer los de demostración con las personas de la BD
         if (lista.length === 0) {
           lista = this.generarContratosDemo();
@@ -73,7 +92,7 @@ export class ContratoListComponent implements OnInit {
       },
       error: (e) => {
         console.error('Error cargando contratos:', e);
-        this.contratos = this.generarContratosDemo();
+        this.contratos = this.isAdmin ? this.generarContratosDemo() : [];
         this.cargando = false;
       }
     });

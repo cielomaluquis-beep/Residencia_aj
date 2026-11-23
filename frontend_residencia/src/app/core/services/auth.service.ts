@@ -50,6 +50,12 @@ export class AuthService {
     return localStorage.getItem('user_name') || '';
   }
 
+  /** ID de la persona que inició sesión (para filtrar "Mis Pagos" / "Mi Contrato") */
+  getIdPersona(): number | null {
+    const id = Number(localStorage.getItem('user_id_persona'));
+    return id > 0 ? id : null;
+  }
+
   getRole(): string {
     return localStorage.getItem('user_role') || '';
   }

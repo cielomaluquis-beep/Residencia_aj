@@ -8,6 +8,7 @@ import { ContratoService } from '../../../core/services/contrato.service';
 import { HabitacionService } from '../../../core/services/habitacion.service';
 import { ClienteService } from '../../../core/services/cliente.service';
 import { AlertService } from '../../../core/services/alert.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Pago } from '../../../core/interfaces/pago.interface';
 import { Contrato } from '../../../core/interfaces/contrato.interface';
 import { Habitacion } from '../../../core/interfaces/habitacion.interface';
@@ -72,6 +73,12 @@ export class PagoListComponent implements OnInit {
   private habitacionService = inject(HabitacionService);
   private clienteService = inject(ClienteService);
   private alertService = inject(AlertService);
+  private authService = inject(AuthService);
+
+  /** Admin / Gerente ven todo; Estudiante solo lo suyo */
+  get isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
 
   pagos: Pago[] = [];
   contratos: Contrato[] = [];
@@ -211,6 +218,20 @@ export class PagoListComponent implements OnInit {
 
       this.actualizarResidenteCalculos(r);
       list.push(r);
+    }
+
+    // ESTUDIANTE: solo ve los pagos de SUS propios contratos
+    if (!this.isAdmin) {
+      const miIdPersona = this.authService.getIdPersona();
+      this.residentes = list.filter(r => {
+        const cli = this.clientes.find(cl => cl.idCliente === r.idCliente);
+        return !!cli && cli.idPersona === miIdPersona;
+      });
+      if (this.residenteSeleccionado) {
+        const match = this.residentes.find(r => r.idContrato === this.residenteSeleccionado?.idContrato);
+        this.residenteSeleccionado = match || null;
+      }
+      return;
     }
 
     // 2. Si hay personas en la base de datos pero aún no tienen un contrato registrado en tabla,
