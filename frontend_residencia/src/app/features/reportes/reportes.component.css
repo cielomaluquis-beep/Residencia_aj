@@ -1,0 +1,29 @@
+.text-upeu-primary {
+  color: #0b3954;
+}
+
+.nav-pills .nav-link {
+  color: #495057;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.nav-pills .nav-link:hover {
+  background-color: #e9ecef;
+  color: #0b3954;
+}
+
+.nav-pills .nav-link.active {
+  background-color: #0b3954;
+  color: #ffffff;
+  border-color: #0b3954;
+}
+
+.btn-sp.active {
+  background-color: #6f42c1 !important;
+  border-color: #6f42c1 !important;
+}
+

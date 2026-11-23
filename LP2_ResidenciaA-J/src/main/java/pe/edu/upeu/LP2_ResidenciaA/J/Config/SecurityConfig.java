@@ -49,6 +49,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/personas/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/tipo-contratos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/pagos/**").permitAll()
+                        .requestMatchers("/api/v1/reportes/**").permitAll()
+                        .requestMatchers("/api/v1/procedimientos/**").permitAll()
                         // 2. Operaciones de gestión protegidas (Crear, Editar, Eliminar)
                         .anyRequest().authenticated()
                 )

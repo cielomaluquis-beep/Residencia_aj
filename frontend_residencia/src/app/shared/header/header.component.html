@@ -121,6 +121,15 @@
             </a>
           </li>
         }
+
+        <!-- Reportes SQL (Administradora y Gerente) -->
+        @if (isAdmin) {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/reportes" routerLinkActive="active">
+              <i class="bi bi-bar-chart-line-fill"></i><span>Reportes</span>
+            </a>
+          </li>
+        }
       </ul>
 
       <!-- ================= BUSCADOR LIMPIO (Como en la pantalla del profesor) ================= -->

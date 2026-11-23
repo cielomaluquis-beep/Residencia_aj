@@ -9,6 +9,7 @@ import { ClienteListComponent } from './features/clientes/cliente-list/cliente-l
 import { ClienteFormComponent } from './features/clientes/cliente-form/cliente-form.component';
 import { PagoListComponent } from './features/pagos/pago-list/pago-list.component';
 import { PagoFormComponent } from './features/pagos/pago-form/pago-form.component';
+import { ReportesComponent } from './features/reportes/reportes.component';
 import { authGuard, adminGuard, administradoraGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -36,6 +37,9 @@ export const routes: Routes = [
       // Pagos (Ver con sesión; Registrar nuevo cobro exclusivo Administradora)
       { path: 'pagos', component: PagoListComponent, canActivate: [authGuard] },
       { path: 'pagos/nuevo', component: PagoFormComponent, canActivate: [administradoraGuard] },
+
+      // Reportes SQL y Procedimientos Almacenados (Administradora y Gerente)
+      { path: 'reportes', component: ReportesComponent, canActivate: [adminGuard] },
 
       { path: '', redirectTo: 'home', pathMatch: 'full' }
     ]
