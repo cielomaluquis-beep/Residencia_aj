@@ -198,8 +198,7 @@ export class ContratoFormComponent implements OnInit {
   getNombreCliente(idPersona?: number): string {
     const p = this.personas.find(per => per.idPersona === idPersona);
     if (!p) return 'Residente';
-    const nombre = `${p.nombres} ${p.apPaterno} ${p.apMaterno || ''}`.trim();
-    return p.nroDocumento ? `${nombre} (${p.nroDocumento})` : nombre;
+    return `${p.nombres} ${p.apPaterno} ${p.apMaterno || ''}`.trim();
   }
 
   getEstadoTexto(estado?: string): string {
