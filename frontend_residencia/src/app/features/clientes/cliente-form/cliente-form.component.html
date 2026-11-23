@@ -53,13 +53,13 @@
               </div>
 
               <!-- Teléfono -->
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <label class="form-label fw-semibold">Teléfono / Celular</label>
                 <input type="text" class="form-control" formControlName="telefono" placeholder="Ej. 987654321" maxlength="9">
               </div>
 
               <!-- Email -->
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <label class="form-label fw-semibold">Correo Electrónico</label>
                 <input type="email" class="form-control" formControlName="email" placeholder="ejemplo@upeu.edu.pe"
                        [ngClass]="{'is-invalid': form.get('email')?.touched && form.get('email')?.invalid}">
@@ -69,9 +69,18 @@
               </div>
 
               <!-- Fecha de Nacimiento -->
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <label class="form-label fw-semibold">Fecha de Nacimiento</label>
                 <input type="date" class="form-control" formControlName="fechaNac">
+              </div>
+
+              <!-- Estado del Residente -->
+              <div class="col-md-3">
+                <label class="form-label fw-semibold">Estado del Residente <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="estado">
+                  <option value="A">Activo</option>
+                  <option value="I">Inactivo</option>
+                </select>
               </div>
             </div>
 
@@ -91,4 +100,3 @@
     </div>
   </div>
 </div>
-

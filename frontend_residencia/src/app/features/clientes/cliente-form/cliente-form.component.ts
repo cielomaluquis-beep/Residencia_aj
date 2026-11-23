@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ClienteService } from '../../../core/services/cliente.service';
 import { AlertService } from '../../../core/services/alert.service';
+import { Cliente } from '../../../core/interfaces/cliente.interface';
 
 @Component({
   selector: 'app-cliente-form',
@@ -23,6 +24,7 @@ export class ClienteFormComponent implements OnInit {
   isEditMode: boolean = false;
   personaId?: number;
   guardando: boolean = false;
+  clientes: Cliente[] = [];
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -32,14 +34,21 @@ export class ClienteFormComponent implements OnInit {
       nroDocumento: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(8)]],
       telefono: ['', [Validators.maxLength(9)]],
       email: ['', [Validators.email, Validators.maxLength(50)]],
-      fechaNac: ['']
+      fechaNac: [''],
+      estado: ['A', [Validators.required]]
     });
 
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.isEditMode = true;
       this.personaId = Number(idParam);
-      this.cargarDatos(this.personaId);
+      this.clienteService.getClientes().subscribe({
+        next: (clis) => {
+          this.clientes = clis || [];
+          this.cargarDatos(this.personaId!);
+        },
+        error: () => this.cargarDatos(this.personaId!)
+      });
     }
   }
 
@@ -47,6 +56,7 @@ export class ClienteFormComponent implements OnInit {
     this.clienteService.getPersonaById(id).subscribe({
       next: (p) => {
         const fmtDate = (d: any) => d ? new Date(d).toISOString().substring(0, 10) : '';
+        const esActivo = this.clienteService.esPersonaActiva(id, this.clientes);
         this.form.patchValue({
           nombres: p.nombres,
           apPaterno: p.apPaterno,
@@ -54,7 +64,8 @@ export class ClienteFormComponent implements OnInit {
           nroDocumento: p.nroDocumento,
           telefono: p.telefono,
           email: p.email,
-          fechaNac: fmtDate(p.fechaNac)
+          fechaNac: fmtDate(p.fechaNac),
+          estado: esActivo ? 'A' : 'I'
         });
       },
       error: () => {
@@ -72,13 +83,18 @@ export class ClienteFormComponent implements OnInit {
     }
 
     this.guardando = true;
-    const datos = this.form.value;
+    const { estado, ...datos } = this.form.value;
+    const activar = estado === 'A';
 
     if (this.isEditMode && this.personaId) {
       this.clienteService.updatePersona(this.personaId, datos).subscribe({
         next: () => {
-          this.alertService.success('Datos actualizados con éxito');
-          this.router.navigate(['/clientes']);
+          this.clienteService.cambiarEstadoResidente(this.personaId!, activar, this.clientes).subscribe({
+            next: () => {
+              this.alertService.success('Datos y estado del residente actualizados con éxito');
+              this.router.navigate(['/clientes']);
+            }
+          });
         },
         error: (e) => {
           console.error(e);
@@ -89,12 +105,8 @@ export class ClienteFormComponent implements OnInit {
     } else {
       this.clienteService.createPersona(datos).subscribe({
         next: (nuevaPer) => {
-          // Crear automáticamente el cliente asociado
           if (nuevaPer.idPersona) {
-            this.clienteService.createCliente({ idPersona: nuevaPer.idPersona }).subscribe({
-              next: () => console.log('Cliente asociado creado'),
-              error: (err) => console.warn('Aviso: Cliente ya existía o error leve', err)
-            });
+            this.clienteService.cambiarEstadoResidente(nuevaPer.idPersona, activar, this.clientes).subscribe();
           }
           this.alertService.success('Residente registrado con éxito');
           this.router.navigate(['/clientes']);
@@ -108,4 +120,3 @@ export class ClienteFormComponent implements OnInit {
     }
   }
 }
-

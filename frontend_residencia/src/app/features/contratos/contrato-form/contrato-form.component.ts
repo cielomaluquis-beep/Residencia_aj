@@ -175,7 +175,12 @@ export class ContratoFormComponent implements OnInit {
     });
 
     this.clienteService.getClientes().subscribe({
-      next: (data) => this.clientes = data || [],
+      next: (data) => {
+        const todos = data || [];
+        this.clientes = todos.filter(c =>
+          this.clienteService.esPersonaActiva(c.persona?.idPersona ?? c.idPersona, todos)
+        );
+      },
       error: (e) => console.error('Error cargando clientes', e)
     });
 

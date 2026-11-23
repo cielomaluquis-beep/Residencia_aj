@@ -63,10 +63,25 @@ export class ClienteListComponent implements OnInit {
   }
 
   esResidenteActivo(idPersona?: number): boolean {
-    if (!idPersona) return false;
-    return this.clientes.some(c => {
-      const cId = c.persona?.idPersona ?? c.idPersona;
-      return cId === idPersona;
+    return this.clienteService.esPersonaActiva(idPersona, this.clientes);
+  }
+
+  toggleEstado(p: Persona): void {
+    if (!p.idPersona) return;
+    const nuevoEstadoActivo = !this.esResidenteActivo(p.idPersona);
+    const nombreCompleto = `${p.nombres} ${p.apPaterno}`.trim();
+
+    this.clienteService.cambiarEstadoResidente(p.idPersona, nuevoEstadoActivo, this.clientes).subscribe({
+      next: () => {
+        // Recargar lista de clientes por si se insertó un nuevo registro en Oracle
+        this.clienteService.getClientes().subscribe({
+          next: (clis) => this.clientes = clis
+        });
+        this.alertService.toast(
+          `${nombreCompleto} cambió a estado ${nuevoEstadoActivo ? 'Activo' : 'Inactivo'}`,
+          nuevoEstadoActivo ? 'success' : 'info'
+        );
+      }
     });
   }
 

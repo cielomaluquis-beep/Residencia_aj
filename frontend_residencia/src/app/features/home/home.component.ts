@@ -135,7 +135,14 @@ export class HomeComponent implements OnInit {
     });
 
     this.clienteService.getClientes().subscribe({
-      next: (clis) => this.totalClientes = clis.length,
+      next: (clis) => {
+        this.clienteService.getPersonas().subscribe({
+          next: (pers) => {
+            this.totalClientes = (pers || []).filter(p => this.clienteService.esPersonaActiva(p.idPersona, clis || [])).length;
+          },
+          error: () => this.totalClientes = (clis || []).length
+        });
+      },
       error: (e) => console.error('Error al cargar clientes', e)
     });
   }
