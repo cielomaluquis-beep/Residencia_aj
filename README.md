@@ -33,9 +33,12 @@ Este repositorio unificado contiene la solución integral del proyecto:
 - `LP2_ResidenciaA-J/`: Código fuente del Backend desarrollado con Spring Boot y arquitectura en capas (Entity, Repository, Service, Controller, Security, DTO).
 - `frontend_residencia/`: Aplicación Web Frontend desarrollada con Angular 18 y Bootstrap para la gestión de residentes, habitaciones, contratos y pagos.
 
-## Repositorios del proyecto
+## Repositorios y Despliegue del proyecto
 
-- **Proyecto Unificado:** [Residencia_aj](https://github.com/cielomaluquis-beep/Residencia_aj)
+- **Proyecto Unificado (GitHub):** [Residencia_aj](https://github.com/cielomaluquis-beep/Residencia_aj)
+- **Web Desplegada (GitHub Pages):** [https://cielomaluquis-beep.github.io/Residencia_aj/](https://cielomaluquis-beep.github.io/Residencia_aj/)
+- **Despliegue con Docker:** Incluye `Dockerfile` (Backend y Frontend) y `docker-compose.yml` (`docker compose up -d --build`).
+- **CI/CD Automatizado:** Configurado mediante GitHub Actions (`.github/workflows/deploy.yml`).
 
 ---
 

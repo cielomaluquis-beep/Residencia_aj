@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./LP2_ResidenciaA-J
+    container_name: residencia-aj-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@host.docker.internal:1521/xe
+      - SPRING_DATASOURCE_USERNAME=RESIDENCIA_AJ
+      - SPRING_DATASOURCE_PASSWORD=2026
+    volumes:
+      - ./LP2_ResidenciaA-J/images:/app/images
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend_residencia
+    container_name: residencia-aj-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
