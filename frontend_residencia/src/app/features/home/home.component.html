@@ -1,163 +1,312 @@
-<div class="container py-4">
-  <!-- Banner de Bienvenida -->
-  <div class="p-4 mb-4 bg-upeu-primary text-white rounded-3 shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-md-center">
-    <div>
-      <h2 class="fw-bold mb-1"><i class="bi bi-buildings-fill text-upeu-accent me-2"></i>Sistema de Residencia Universitaria</h2>
-      <p class="mb-0 text-white-50">Bienvenido al panel de administración de habitaciones, contratos, residentes y pagos.</p>
+<!-- ================= HERO ANIMADO ================= -->
+<section class="hero">
+  <div class="hero-bg" style="background-image: url('hero-residencia.jpg');"></div>
+  <div class="hero-overlay"></div>
+
+  <div class="container hero-content">
+    <span class="hero-tag anim-up" style="animation-delay: .1s">
+      <i class="bi bi-buildings-fill me-1"></i>Residencia Universitaria A&amp;J &middot; Morales
+    </span>
+    <h1 class="hero-title anim-up" style="animation-delay: .25s">
+      Tu hogar mientras <span class="text-accent">estudias</span>
+    </h1>
+    <p class="hero-text anim-up" style="animation-delay: .4s">
+      Habitaciones cómodas, seguras e iluminadas, a pocos minutos de la universidad.
+      Reserva la tuya y enfócate en lo que importa: tus metas.
+    </p>
+
+    <div class="hero-actions anim-up" style="animation-delay: .55s">
+      <button type="button" class="btn btn-accent btn-lg" (click)="irAHabitaciones()">
+        <i class="bi bi-door-open me-2"></i>Ver habitaciones
+      </button>
+      @if (isAdmin) {
+        <a routerLink="/contratos/nuevo" class="btn btn-outline-light btn-lg">
+          <i class="bi bi-plus-circle me-2"></i>Nuevo contrato
+        </a>
+      } @else if (isLoggedIn) {
+        <a routerLink="/pagos" class="btn btn-outline-light btn-lg">
+          <i class="bi bi-cash-coin me-2"></i>Mis pagos
+        </a>
+      } @else {
+        <a [href]="whatsappUrl" target="_blank" rel="noopener" class="btn btn-outline-light btn-lg">
+          <i class="bi bi-whatsapp me-2"></i>Consultar disponibilidad
+        </a>
+      }
     </div>
-    @if (isAdmin) {
-      <div class="mt-3 mt-md-0 d-flex gap-2">
-        <a routerLink="/contratos/nuevo" class="btn btn-warning fw-semibold">
-          <i class="bi bi-plus-circle me-1"></i>Nuevo Contrato
-        </a>
-        <a routerLink="/habitaciones/nuevo" class="btn btn-outline-light">
-          <i class="bi bi-door-open me-1"></i>Nueva Habitación
-        </a>
+
+    <div class="hero-stats anim-up" style="animation-delay: .7s">
+      <div class="stat-chip">
+        <strong>{{ habitacionesDisponibles }}</strong>
+        <span>Disponibles</span>
       </div>
-    }
+      <div class="stat-chip">
+        <strong>{{ totalHabitaciones }}</strong>
+        <span>Habitaciones</span>
+      </div>
+      @if (precioDesde > 0) {
+        <div class="stat-chip">
+          <strong>S/ {{ precioDesde | number:'1.0-0' }}</strong>
+          <span>Desde / mes</span>
+        </div>
+      }
+    </div>
   </div>
 
-  <!-- Métricas Rápidas (Solo Admin / Gerente) -->
+  <button type="button" class="scroll-hint" (click)="irAHabitaciones()" aria-label="Bajar a habitaciones">
+    <i class="bi bi-chevron-double-down"></i>
+  </button>
+</section>
+
+<div class="container py-5">
+
+  <!-- ================= MÉTRICAS (Solo Admin / Gerente) ================= -->
   @if (isAdmin) {
-    <div class="row g-3 mb-4">
-      <!-- Habitaciones Disponibles -->
+    <div class="row g-3 mb-5 metrics">
       <div class="col-sm-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body d-flex align-items-center">
-            <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3 text-primary fs-3">
-              <i class="bi bi-door-closed-fill"></i>
-            </div>
-            <div>
-              <div class="text-muted small">Habitaciones Disp.</div>
-              <h3 class="fw-bold mb-0 text-primary">{{ habitacionesDisponibles }} <span class="fs-6 text-muted">/ {{ totalHabitaciones }}</span></h3>
-            </div>
+        <div class="metric-card">
+          <div class="metric-icon bg-primary-subtle text-primary"><i class="bi bi-door-closed-fill"></i></div>
+          <div>
+            <div class="metric-label">Habitaciones disp.</div>
+            <div class="metric-value text-primary">{{ habitacionesDisponibles }} <small>/ {{ totalHabitaciones }}</small></div>
           </div>
         </div>
       </div>
-
-      <!-- Contratos / Reservas -->
       <div class="col-sm-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body d-flex align-items-center">
-            <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3 text-success fs-3">
-              <i class="bi bi-file-earmark-check-fill"></i>
-            </div>
-            <div>
-              <div class="text-muted small">Contratos Registrados</div>
-              <h3 class="fw-bold mb-0 text-success">{{ totalContratos }}</h3>
-            </div>
+        <div class="metric-card">
+          <div class="metric-icon bg-success-subtle text-success"><i class="bi bi-file-earmark-check-fill"></i></div>
+          <div>
+            <div class="metric-label">Contratos registrados</div>
+            <div class="metric-value text-success">{{ totalContratos }}</div>
           </div>
         </div>
       </div>
-
-      <!-- Clientes / Residentes -->
       <div class="col-sm-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body d-flex align-items-center">
-            <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3 text-info fs-3">
-              <i class="bi bi-people-fill"></i>
-            </div>
-            <div>
-              <div class="text-muted small">Residentes Activos</div>
-              <h3 class="fw-bold mb-0 text-info">{{ totalClientes }}</h3>
-            </div>
+        <div class="metric-card">
+          <div class="metric-icon bg-info-subtle text-info"><i class="bi bi-people-fill"></i></div>
+          <div>
+            <div class="metric-label">Residentes</div>
+            <div class="metric-value text-info">{{ totalClientes }}</div>
           </div>
         </div>
       </div>
-
-      <!-- Ingresos Totales -->
       <div class="col-sm-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body d-flex align-items-center">
-            <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3 text-warning fs-3">
-              <i class="bi bi-cash-stack"></i>
-            </div>
-            <div>
-              <div class="text-muted small">Total Contratado</div>
-              <h3 class="fw-bold mb-0 text-dark">S/ {{ totalIngresos | number:'1.2-2' }}</h3>
-            </div>
+        <div class="metric-card">
+          <div class="metric-icon bg-warning-subtle text-warning"><i class="bi bi-cash-stack"></i></div>
+          <div>
+            <div class="metric-label">Total contratado</div>
+            <div class="metric-value">S/ {{ totalIngresos | number:'1.2-2' }}</div>
           </div>
         </div>
       </div>
     </div>
   }
 
-  <!-- Accesos Rápidos a Módulos según Rol -->
-  <div class="row g-4">
-    <!-- Módulo Habitaciones (Visible para todos) -->
-    <div [ngClass]="isAdmin ? 'col-md-6 col-lg-3' : 'col-md-6 col-lg-4'">
-      <div class="card h-100 border-0 shadow-sm hover-shadow transition">
-        <div class="card-body text-center p-4">
-          <div class="text-primary fs-1 mb-2">
-            <i class="bi bi-grid-fill"></i>
+  <!-- ================= CATÁLOGO DE HABITACIONES ================= -->
+  <section id="habitaciones" class="mb-5">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Nuestras habitaciones</span>
+        <h2>Elige el espacio ideal para ti</h2>
+        <p class="text-muted mb-0">Todas las habitaciones registradas en la residencia, con su precio y disponibilidad en tiempo real.</p>
+      </div>
+      @if (isAdmin) {
+        <a routerLink="/habitaciones/nuevo" class="btn btn-upeu-primary">
+          <i class="bi bi-plus-circle me-1"></i>Agregar habitación
+        </a>
+      }
+    </div>
+
+    <!-- Filtros rápidos por estado y piso -->
+    <div class="filters">
+      <div class="chips">
+        <button type="button" [class.active]="filtro === 'todas'" (click)="setFiltro('todas')">
+          Todas <span>{{ habitaciones.length }}</span>
+        </button>
+        <button type="button" [class.active]="filtro === 'disponibles'" (click)="setFiltro('disponibles')">
+          Disponibles <span>{{ habitacionesDisponibles }}</span>
+        </button>
+        <button type="button" [class.active]="filtro === 'ocupadas'" (click)="setFiltro('ocupadas')">
+          No disponibles <span>{{ habitaciones.length - habitacionesDisponibles }}</span>
+        </button>
+      </div>
+      @if (pisos.length > 1) {
+        <div class="chips">
+          <button type="button" [class.active]="pisoSeleccionado === null" (click)="setPiso(null)">Todos los pisos</button>
+          @for (p of pisos; track p) {
+            <button type="button" [class.active]="pisoSeleccionado === p" (click)="setPiso(p)">Piso {{ p }}</button>
+          }
+        </div>
+      }
+    </div>
+
+    @if (cargandoHabitaciones) {
+      <div class="row g-4">
+        @for (s of [1,2,3]; track s) {
+          <div class="col-md-6 col-lg-4">
+            <div class="room-card skeleton">
+              <div class="room-img"></div>
+              <div class="p-3"><div class="sk-line w-75"></div><div class="sk-line w-50"></div></div>
+            </div>
           </div>
-          <h5 class="fw-bold">Habitaciones</h5>
-          <p class="text-muted small">
-            {{ isAdmin ? 'Administra los pisos, precios, disponibilidad y descripciones de cuartos.' : 'Explora los cuartos disponibles, tipos y tarifas de la residencia.' }}
-          </p>
-          <a routerLink="/habitaciones" class="btn btn-outline-primary btn-sm w-100">
-            {{ isAdmin ? 'Gestionar Habitaciones' : 'Ver Habitaciones' }}
+        }
+      </div>
+    } @else if (habitacionesFiltradas.length === 0) {
+      <div class="empty-box">
+        <i class="bi bi-door-closed"></i>
+        <p class="mb-0">No hay habitaciones que coincidan con el filtro elegido.</p>
+      </div>
+    } @else {
+      <div class="row g-4">
+        @for (h of habitacionesFiltradas; track h.idHabitacion; let i = $index) {
+          <div class="col-md-6 col-lg-4">
+            <article class="room-card card-in" [style.animation-delay]="(i * 0.08) + 's'" (click)="abrirDetalle(h)">
+              <div class="room-img">
+                @if (getImagen(h); as img) {
+                  <img [src]="img" [alt]="getNumero(h)" loading="lazy">
+                } @else {
+                  <div class="room-placeholder"><i class="bi bi-house-heart"></i></div>
+                }
+                <span class="room-status" [ngClass]="getEstadoClase(h)">{{ getEstadoTexto(h) }}</span>
+                <span class="room-price">S/ {{ h.precio | number:'1.0-0' }}<small>/mes</small></span>
+              </div>
+              <div class="room-body">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h5 class="mb-0">{{ getNumero(h) }}</h5>
+                  <span class="room-floor"><i class="bi bi-building me-1"></i>Piso {{ h.piso }}</span>
+                </div>
+                <p class="room-desc">{{ h.descripcion || 'Habitación cómoda e iluminada, lista para ti.' }}</p>
+                <div class="room-features">
+                  <span><i class="bi bi-wifi"></i>WiFi</span>
+                  <span><i class="bi bi-lightbulb"></i>Luz y agua</span>
+                  <span><i class="bi bi-shield-check"></i>Segura</span>
+                </div>
+                <button type="button" class="btn btn-room w-100 mt-3">
+                  Ver detalles <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+              </div>
+            </article>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- ================= ¿POR QUÉ ELEGIRNOS? ================= -->
+  <section class="mb-5">
+    <div class="text-center mb-4">
+      <span class="eyebrow">¿Por qué A&amp;J?</span>
+      <h2>Todo lo que necesitas para vivir y estudiar</h2>
+    </div>
+    <div class="row g-4">
+      @for (b of beneficios; track b.titulo) {
+        <div class="col-sm-6 col-lg-3">
+          <div class="benefit">
+            <div class="benefit-icon"><i class="bi" [ngClass]="b.icono"></i></div>
+            <h6>{{ b.titulo }}</h6>
+            <p>{{ b.texto }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ================= ACCESOS RÁPIDOS SEGÚN ROL ================= -->
+  @if (isLoggedIn) {
+    <section class="mb-5">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Panel</span>
+          <h2>{{ isAdmin ? 'Gestión de la residencia' : 'Mi espacio' }}</h2>
+        </div>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-6" [class.col-lg-3]="isAdmin" [class.col-lg-4]="!isAdmin">
+          <a routerLink="/habitaciones" class="quick-card">
+            <i class="bi bi-grid-fill text-primary"></i>
+            <h6>Habitaciones</h6>
+            <p>{{ isAdmin ? 'Administra precios, pisos y disponibilidad.' : 'Explora todas las habitaciones.' }}</p>
+          </a>
+        </div>
+        <div class="col-md-6" [class.col-lg-3]="isAdmin" [class.col-lg-4]="!isAdmin">
+          <a routerLink="/contratos" class="quick-card">
+            <i class="bi bi-calendar2-range-fill text-success"></i>
+            <h6>{{ isAdmin ? 'Contratos y reservas' : 'Mi contrato' }}</h6>
+            <p>{{ isAdmin ? 'Registra y controla la vigencia de contratos.' : 'Consulta la vigencia de tu contrato.' }}</p>
+          </a>
+        </div>
+        @if (isAdmin) {
+          <div class="col-md-6 col-lg-3">
+            <a routerLink="/clientes" class="quick-card">
+              <i class="bi bi-person-lines-fill text-info"></i>
+              <h6>Residentes</h6>
+              <p>Datos personales, DNI, teléfono y correo.</p>
+            </a>
+          </div>
+        }
+        <div class="col-md-6" [class.col-lg-3]="isAdmin" [class.col-lg-4]="!isAdmin">
+          <a routerLink="/pagos" class="quick-card">
+            <i class="bi bi-credit-card-2-front-fill text-warning"></i>
+            <h6>{{ isAdmin ? 'Control de pagos' : 'Mis pagos' }}</h6>
+            <p>{{ isAdmin ? 'Mensualidades, garantías y comprobantes.' : 'Revisa tus cuotas y comprobantes.' }}</p>
           </a>
         </div>
       </div>
-    </div>
+    </section>
+  }
 
-    <!-- Módulo Contratos (Autenticados) -->
-    @if (isLoggedIn) {
-      <div [ngClass]="isAdmin ? 'col-md-6 col-lg-3' : 'col-md-6 col-lg-4'">
-        <div class="card h-100 border-0 shadow-sm hover-shadow transition">
-          <div class="card-body text-center p-4">
-            <div class="text-success fs-1 mb-2">
-              <i class="bi bi-calendar2-range-fill"></i>
-            </div>
-            <h5 class="fw-bold">{{ isAdmin ? 'Contratos & Reservas' : 'Mi Contrato' }}</h5>
-            <p class="text-muted small">
-              {{ isAdmin ? 'Registra contratos vinculados a clientes, habitaciones y métodos de pago.' : 'Consulta la vigencia, fecha fin y detalles de tu contrato de habitación.' }}
-            </p>
-            <a routerLink="/contratos" class="btn btn-outline-success btn-sm w-100">
-              {{ isAdmin ? 'Ver Contratos' : 'Ver Mi Contrato' }}
-            </a>
-          </div>
-        </div>
+  <!-- ================= LLAMADO A LA ACCIÓN ================= -->
+  @if (!isAdmin) {
+    <section class="cta">
+      <div>
+        <h3 class="mb-1">¿Listo para reservar tu habitación?</h3>
+        <p class="mb-0">Visítanos o escríbenos y separa tu espacio para este semestre.</p>
       </div>
-    }
-
-    <!-- Módulo Residentes (Solo Admin / Gerente) -->
-    @if (isAdmin) {
-      <div class="col-md-6 col-lg-3">
-        <div class="card h-100 border-0 shadow-sm hover-shadow transition">
-          <div class="card-body text-center p-4">
-            <div class="text-info fs-1 mb-2">
-              <i class="bi bi-person-lines-fill"></i>
-            </div>
-            <h5 class="fw-bold">Residentes / Clientes</h5>
-            <p class="text-muted small">Registro de datos personales, DNI, teléfono y correo electrónico.</p>
-            <a routerLink="/clientes" class="btn btn-outline-info btn-sm w-100">
-              Ver Clientes
-            </a>
-          </div>
-        </div>
-      </div>
-    }
-
-    <!-- Módulo Pagos (Autenticados) -->
-    @if (isLoggedIn) {
-      <div [ngClass]="isAdmin ? 'col-md-6 col-lg-3' : 'col-md-6 col-lg-4'">
-        <div class="card h-100 border-0 shadow-sm hover-shadow transition">
-          <div class="card-body text-center p-4">
-            <div class="text-warning fs-1 mb-2">
-              <i class="bi bi-credit-card-2-front-fill"></i>
-            </div>
-            <h5 class="fw-bold">{{ isAdmin ? 'Control de Pagos' : 'Mis Pagos' }}</h5>
-            <p class="text-muted small">
-              {{ isAdmin ? 'Registra pagos de mensualidades, abonos de garantía y comprobantes.' : 'Revisa tus pagos registrados y recibos de mensualidad.' }}
-            </p>
-            <a routerLink="/pagos" class="btn btn-outline-warning btn-sm w-100">
-              {{ isAdmin ? 'Gestionar Pagos' : 'Ver Mis Pagos' }}
-            </a>
-          </div>
-        </div>
-      </div>
-    }
-  </div>
+      <a [href]="whatsappUrl" target="_blank" rel="noopener" class="btn btn-light btn-lg">
+        <i class="bi bi-whatsapp me-2 text-success"></i>Contáctanos
+      </a>
+    </section>
+  }
 </div>
+
+<!-- ================= MODAL DETALLE DE HABITACIÓN ================= -->
+@if (habitacionSeleccionada; as h) {
+  <div class="room-modal-backdrop" (click)="cerrarDetalle()">
+    <div class="room-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="room-modal-close" (click)="cerrarDetalle()" aria-label="Cerrar">
+        <i class="bi bi-x-lg"></i>
+      </button>
+      <div class="room-modal-img">
+        @if (getImagen(h); as img) {
+          <img [src]="img" [alt]="getNumero(h)">
+        } @else {
+          <div class="room-placeholder big"><i class="bi bi-house-heart"></i></div>
+        }
+      </div>
+      <div class="p-4">
+        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+          <div>
+            <h4 class="mb-0 fw-bold">{{ getNumero(h) }}</h4>
+            <small class="text-muted"><i class="bi bi-building me-1"></i>Piso {{ h.piso }}</small>
+          </div>
+          <span class="room-status static" [ngClass]="getEstadoClase(h)">{{ getEstadoTexto(h) }}</span>
+        </div>
+        <p class="text-muted">{{ h.descripcion || 'Habitación cómoda e iluminada, lista para ti.' }}</p>
+        <div class="d-flex justify-content-between align-items-center border-top pt-3">
+          <div>
+            <div class="text-muted small">Mensualidad</div>
+            <div class="fs-3 fw-bold text-upeu-primary">S/ {{ h.precio | number:'1.2-2' }}</div>
+          </div>
+          @if (isAdmin) {
+            <a [routerLink]="['/habitaciones/editar', h.idHabitacion]" class="btn btn-outline-primary">
+              <i class="bi bi-pencil me-1"></i>Editar
+            </a>
+          } @else if (esDisponible(h)) {
+            <a [href]="whatsappUrl" target="_blank" rel="noopener" class="btn btn-accent">
+              <i class="bi bi-whatsapp me-1"></i>Quiero reservar
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}
