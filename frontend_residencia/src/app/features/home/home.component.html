@@ -29,9 +29,9 @@
 
 <div class="container py-5">
 
-  <!-- ================= DASHBOARD EJECUTIVO EN TIEMPO REAL (Gerente / Administradora) ================= -->
-  @if (isAdmin) {
-    <!-- Panel de Supervisión Ejecutiva en Tiempo Real (Reemplaza el Excel semanal) -->
+  <!-- ================= DASHBOARD EJECUTIVO EN TIEMPO REAL (Exclusivo del Gerente) ================= -->
+  @if (isGerente) {
+    <!-- Panel de Supervisión Ejecutiva en Tiempo Real -->
     <div class="exec-panel mb-5">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
         <div>
