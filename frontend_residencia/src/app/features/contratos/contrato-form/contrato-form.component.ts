@@ -92,11 +92,11 @@ export class ContratoFormComponent implements OnInit {
     const tipo = this.tiposContrato.find(t => t.idTipoContrato === idTipo);
     const nombre = (tipo?.nombre || '').toLowerCase();
 
-    if (nombre.includes('semestr')) {
+    if (nombre.includes('semestr') || (!nombre && idTipo === 2)) {
       this.form.patchValue({ plazoMeses: '6' }, { emitEvent: false });
-    } else if (nombre.includes('anual') || nombre.includes('año')) {
+    } else if (nombre.includes('anual') || nombre.includes('año') || (!nombre && idTipo === 3)) {
       this.form.patchValue({ plazoMeses: '12' }, { emitEvent: false });
-    } else if (nombre.includes('mensual')) {
+    } else if (nombre.includes('mensual') || (!nombre && idTipo === 1)) {
       this.form.patchValue({ plazoMeses: '1' }, { emitEvent: false });
     } else if (nombre.includes('trimestr')) {
       this.form.patchValue({ plazoMeses: '3' }, { emitEvent: false });
@@ -112,19 +112,25 @@ export class ContratoFormComponent implements OnInit {
 
     const plazo = this.form.get('plazoMeses')?.value;
     let tipoEncontrado: TipContrato | undefined;
+    let idFallback: number | null = null;
 
     if (plazo === '6') {
       tipoEncontrado = this.tiposContrato.find(t => (t.nombre || '').toLowerCase().includes('semestr'));
+      idFallback = 2;
     } else if (plazo === '12') {
       tipoEncontrado = this.tiposContrato.find(t => (t.nombre || '').toLowerCase().includes('anual') || (t.nombre || '').toLowerCase().includes('año'));
+      idFallback = 3;
     } else if (plazo === '1') {
       tipoEncontrado = this.tiposContrato.find(t => (t.nombre || '').toLowerCase().includes('mensual'));
+      idFallback = 1;
     } else if (plazo === '3') {
       tipoEncontrado = this.tiposContrato.find(t => (t.nombre || '').toLowerCase().includes('trimestr'));
     }
 
     if (tipoEncontrado && tipoEncontrado.idTipoContrato) {
       this.form.patchValue({ idTipoContrato: tipoEncontrado.idTipoContrato }, { emitEvent: false });
+    } else if (idFallback !== null && this.tiposContrato.length === 0) {
+      this.form.patchValue({ idTipoContrato: idFallback }, { emitEvent: false });
     }
 
     this.calcularFechaFin();
@@ -236,18 +242,46 @@ export class ContratoFormComponent implements OnInit {
     this.contratoService.getContratoById(id).subscribe({
       next: (c) => {
         const fmtDate = (d: any) => d ? new Date(d).toISOString().substring(0, 10) : '';
+        const fIni = fmtDate(c.fechaInicio);
+        const fFin = fmtDate(c.fechaFin);
+
+        // Determinar el plazo en meses según el Tipo de Contrato o las fechas guardadas
+        let plazoDetectado = '6';
+        const tipo = this.tiposContrato.find(t => t.idTipoContrato === c.idTipoContrato);
+        const nombreTipo = (tipo?.nombre || '').toLowerCase();
+
+        if (nombreTipo.includes('anual') || nombreTipo.includes('año') || c.idTipoContrato === 3) {
+          plazoDetectado = '12';
+        } else if (nombreTipo.includes('semestr') || c.idTipoContrato === 2) {
+          plazoDetectado = '6';
+        } else if (nombreTipo.includes('mensual') || c.idTipoContrato === 1) {
+          plazoDetectado = '1';
+        } else if (fIni && fFin) {
+          const [sy, sm] = fIni.split('-').map(Number);
+          const [ey, em] = fFin.split('-').map(Number);
+          const diffM = (ey - sy) * 12 + (em - sm);
+          plazoDetectado = ['1', '3', '6', '12'].includes(String(diffM)) ? String(diffM) : 'custom';
+        }
+
+        this.sincronizando = true;
         this.form.patchValue({
           idTipoContrato: c.idTipoContrato,
           idCliente: c.idCliente,
           idUsuario: c.idUsuario || 1,
           idHabitacion: c.idHabitacion,
+          plazoMeses: plazoDetectado,
           fechaReserva: fmtDate(c.fechaReserva),
-          fechaInicio: fmtDate(c.fechaInicio),
-          fechaFin: fmtDate(c.fechaFin),
+          fechaInicio: fIni,
+          fechaFin: fFin,
           monto: c.monto,
           metodoPago: c.metodoPago,
           estado: c.estado || 'A'
-        });
+        }, { emitEvent: false });
+        this.sincronizando = false;
+
+        // Recalcular Fecha de Fin para que coincida siempre con el Tipo de Contrato (ej. Anual -> 12 meses)
+        this.calcularFechaFin();
+
         if (c.imgPagoReserva && c.imgPagoReserva !== 'no-image.png') {
           this.imgActual = c.imgPagoReserva;
         }

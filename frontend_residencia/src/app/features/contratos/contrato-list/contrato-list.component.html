@@ -79,9 +79,23 @@
                   S/ {{ c.monto | number:'1.2-2' }} <small class="text-muted fw-normal">/ mes</small>
                 </td>
                 <td>
-                  <span class="badge rounded-pill" [ngClass]="getEstadoBadge(c)">
-                    {{ getEstadoTexto(c) }}
-                  </span>
+                  @if (getEstadoTexto(c) === 'Renovar' && isAdmin) {
+                    <a [routerLink]="['/contratos/editar', c.idContrato]"
+                       class="badge rounded-pill text-decoration-none px-3 py-2"
+                       [ngClass]="getEstadoBadge(c)"
+                       title="Haz clic para renovar las fechas de este contrato">
+                      <i class="bi bi-arrow-repeat me-1"></i>Renovar
+                    </a>
+                  } @else {
+                    <span class="badge rounded-pill px-3 py-2" [ngClass]="getEstadoBadge(c)">
+                      @if (getEstadoTexto(c) === 'Inactivo') {
+                        <i class="bi bi-dash-circle me-1"></i>
+                      } @else if (getEstadoTexto(c) === 'Vigente') {
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                      }
+                      {{ getEstadoTexto(c) }}
+                    </span>
+                  }
                 </td>
                 <td class="text-end pe-4">
                   <div class="btn-group btn-group-sm">

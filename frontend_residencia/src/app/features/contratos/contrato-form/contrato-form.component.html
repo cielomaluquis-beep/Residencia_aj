@@ -48,13 +48,13 @@
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Tipo de Contrato <span class="text-danger">*</span></label>
                 @if (tiposContrato.length > 0) {
-                  <select class="form-select" formControlName="idTipoContrato">
+                  <select class="form-select" formControlName="idTipoContrato" (change)="sincronizarPorTipoContrato()">
                     @for (t of tiposContrato; track t.idTipoContrato) {
                       <option [value]="t.idTipoContrato">{{ t.nombre }}</option>
                     }
                   </select>
                 } @else {
-                  <select class="form-select" formControlName="idTipoContrato">
+                  <select class="form-select" formControlName="idTipoContrato" (change)="sincronizarPorTipoContrato()">
                     <option [value]="1">Mensual</option>
                     <option [value]="2">Semestral</option>
                     <option [value]="3">Anual</option>
@@ -78,7 +78,7 @@
               <!-- Duración / Plazo del Contrato -->
               <div class="col-md-4">
                 <label class="form-label fw-semibold">Plazo / Duración <span class="text-danger">*</span></label>
-                <select class="form-select border-primary" formControlName="plazoMeses">
+                <select class="form-select border-primary" formControlName="plazoMeses" (change)="sincronizarPorPlazo()">
                   <option value="1">1 Mes</option>
                   <option value="3">3 Meses (Trimestre)</option>
                   <option value="6">6 Meses (Semestre Académico)</option>
@@ -143,9 +143,9 @@
                 <label class="form-label fw-semibold">Estado del Contrato <span class="text-danger">*</span></label>
                 <select class="form-select" formControlName="estado">
                   <option value="A">Activo / Vigente</option>
-                  <option value="P">Pendiente de Aprobación</option>
+                  <option value="R">Renovar (Al vencer plazo)</option>
+                  <option value="I">Inactivo (Ya no reside)</option>
                   <option value="F">Finalizado</option>
-                  <option value="C">Cancelado</option>
                 </select>
               </div>
 

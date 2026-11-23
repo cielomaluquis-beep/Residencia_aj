@@ -191,11 +191,11 @@ export class ContratoListComponent implements OnInit {
   }
 
   getVigencia(c: Contrato): VigenciaContrato {
-    const fInicio = c.fechaInicio || '2026-11-05';
-    const fFin = c.fechaFin || '2027-05-05';
+    const fInicio = (c.fechaInicio || '2026-11-05').substring(0, 10);
+    let fFin = (c.fechaFin || '2027-05-05').substring(0, 10);
 
     const partsIni = fInicio.split('-');
-    const partsFin = fFin.split('-');
+    let partsFin = fFin.split('-');
 
     const diaCobro = partsIni.length === 3 ? (Number(partsIni[2]) || 5) : 5;
 
@@ -204,6 +204,25 @@ export class ContratoListComponent implements OnInit {
       const sy = Number(partsIni[0]), sm = Number(partsIni[1]);
       const ey = Number(partsFin[0]), em = Number(partsFin[1]);
       meses = Math.max(1, (ey - sy) * 12 + (em - sm));
+    }
+
+    // Sincronizar plazo si el Tipo de Contrato es explícitamente Anual (12 meses) o Semestral (6 meses)
+    const nombreTipo = this.getNombreTipoContrato(c.idTipoContrato).toLowerCase();
+    let mesesEsperados: number | null = null;
+    if (nombreTipo.includes('anual') || nombreTipo.includes('año') || c.idTipoContrato === 3) {
+      mesesEsperados = 12;
+    } else if (nombreTipo.includes('semestr') || c.idTipoContrato === 2) {
+      mesesEsperados = 6;
+    }
+
+    if (mesesEsperados && meses !== mesesEsperados && partsIni.length === 3) {
+      meses = mesesEsperados;
+      const target = new Date(Number(partsIni[0]), Number(partsIni[1]) - 1 + mesesEsperados, Number(partsIni[2]) || 5);
+      const ty = target.getFullYear();
+      const tm = String(target.getMonth() + 1).padStart(2, '0');
+      const td = String(target.getDate()).padStart(2, '0');
+      fFin = `${ty}-${tm}-${td}`;
+      partsFin = fFin.split('-');
     }
 
     const plazoTexto = meses === 1 ? '1 mes' : `${meses} meses`;
@@ -218,14 +237,14 @@ export class ContratoListComponent implements OnInit {
     let badgeClass = '';
     let textoRestante = '';
 
-    if (diffDays < 0) {
+    if (diffDays <= 0) {
       estadoVigencia = 'finalizado';
-      badgeClass = 'bg-secondary';
-      textoRestante = `Finalizó hace ${Math.abs(diffDays)} días`;
+      badgeClass = 'bg-warning text-dark';
+      textoRestante = diffDays === 0 ? 'Vence hoy (Requiere renovación)' : `Venció hace ${Math.abs(diffDays)} días`;
     } else if (diffDays <= 30) {
       estadoVigencia = 'por_vencer';
       badgeClass = 'bg-warning text-dark';
-      textoRestante = diffDays === 0 ? 'Vence hoy' : `Vence en ${diffDays} días`;
+      textoRestante = `Vence en ${diffDays} días`;
     } else {
       estadoVigencia = 'vigente';
       badgeClass = 'bg-success';
@@ -274,15 +293,43 @@ export class ContratoListComponent implements OnInit {
     });
   }
 
+  esContratoInactivo(c: Contrato): boolean {
+    const est = (c.estado || '').toUpperCase();
+    if (est === 'I' || est === 'C') return true;
+
+    if (this.clientes.length > 0) {
+      const cli = this.clientes.find(cl => cl.idCliente === c.idCliente);
+      const idPer = cli ? (cli.persona?.idPersona ?? cli.idPersona) : undefined;
+      if (idPer && !this.clienteService.esPersonaActiva(idPer, this.clientes)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   getEstadoBadge(c: Contrato): string {
+    if (this.esContratoInactivo(c)) return 'bg-secondary';
+    const est = (c.estado || '').toUpperCase();
+    if (est === 'R') return 'bg-warning text-dark';
+    if (est === 'F') return 'bg-secondary';
+
     const vig = this.getVigencia(c);
-    return vig.badgeClass;
+    if (vig.estadoVigencia === 'finalizado' || vig.estadoVigencia === 'por_vencer') {
+      return 'bg-warning text-dark';
+    }
+    return 'bg-success';
   }
 
   getEstadoTexto(c: Contrato): string {
+    if (this.esContratoInactivo(c)) return 'Inactivo';
+    const est = (c.estado || '').toUpperCase();
+    if (est === 'R') return 'Renovar';
+    if (est === 'F') return 'Finalizado';
+
     const vig = this.getVigencia(c);
-    if (vig.estadoVigencia === 'vigente') return 'Vigente';
-    if (vig.estadoVigencia === 'por_vencer') return 'Por vencer';
-    return 'Finalizado';
+    if (vig.estadoVigencia === 'finalizado' || vig.estadoVigencia === 'por_vencer') {
+      return 'Renovar';
+    }
+    return 'Vigente';
   }
 }
