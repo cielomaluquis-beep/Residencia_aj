@@ -545,7 +545,7 @@ export class PagoListComponent implements OnInit {
     if (p.imgPago.startsWith('http') || p.imgPago.startsWith('data:')) {
       return p.imgPago;
     }
-    return `/LP2_ResidenciaA-J/images/${p.imgPago}`;
+    return `LP2_ResidenciaA-J/images/${p.imgPago}`;
   }
 
   verVoucher(p: Pago): void {
