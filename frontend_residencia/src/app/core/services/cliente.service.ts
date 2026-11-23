@@ -1,7 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of } from 'rxjs';
 import { Cliente, Persona } from '../interfaces/cliente.interface';
+
+interface UsuarioStaffDTO {
+  idUsuario?: number;
+  idPersona?: number;
+  idRol?: number;
+  nombre?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +17,7 @@ export class ClienteService {
   private http = inject(HttpClient);
   private clientesUrl = '/api/v1/clientes';
   private personasUrl = '/api/v1/personas';
+  private usuariosUrl = '/api/v1/usuarios';
   private storageKey = 'estados_residentes_aj';
 
   getClientes(): Observable<Cliente[]> {
@@ -28,9 +36,42 @@ export class ClienteService {
     return this.http.delete<void>(`${this.clientesUrl}/${id}`);
   }
 
-  // Métodos de personas
+  /**
+   * Obtiene únicamente las personas que son Residentes / Estudiantes,
+   * excluyendo al personal administrativo (Administradora y Gerente).
+   */
   getPersonas(): Observable<Persona[]> {
-    return this.http.get<Persona[]>(this.personasUrl);
+    return forkJoin({
+      personas: this.http.get<Persona[]>(this.personasUrl),
+      usuarios: this.http.get<UsuarioStaffDTO[]>(this.usuariosUrl).pipe(catchError(() => of([])))
+    }).pipe(
+      map(({ personas, usuarios }) => {
+        // IDs de persona que tienen rol 1 (Administradora) o rol 2 (Gerente) en la tabla USUARIOS
+        const idsStaff = new Set<number>(
+          (usuarios || [])
+            .filter(u => (u.idRol === 1 || u.idRol === 2) && u.idPersona != null)
+            .map(u => Number(u.idPersona))
+        );
+
+        // Si el usuario logueado actualmente es Admin o Gerente, también excluir su propio idPersona
+        const rolActual = (localStorage.getItem('user_role') || '').toUpperCase();
+        const idPersonaActual = Number(localStorage.getItem('user_id_persona'));
+        if ((rolActual === 'ADMIN' || rolActual === 'ADMINISTRADORA' || rolActual === 'GERENTE') && idPersonaActual > 0) {
+          idsStaff.add(idPersonaActual);
+        }
+
+        return (personas || []).filter(p => {
+          if (p.idPersona != null && idsStaff.has(Number(p.idPersona))) {
+            return false;
+          }
+          const nombreCompleto = `${p.nombres || ''} ${p.apPaterno || ''} ${p.apMaterno || ''}`.toLowerCase();
+          if (nombreCompleto.includes('marta flores') || nombreCompleto.includes('elias pisco')) {
+            return false;
+          }
+          return true;
+        });
+      })
+    );
   }
 
   getPersonaById(id: number): Observable<Persona> {
